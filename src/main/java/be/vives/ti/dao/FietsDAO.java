@@ -4,13 +4,15 @@ import be.vives.ti.databag.Fiets;
 import be.vives.ti.datatype.Status;
 import be.vives.ti.exception.DBException;
 
+import java.util.List;
+
 public class FietsDAO {
 
     public Integer toevoegenFiets(Fiets fiets) throws DBException {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public void wijzigenToestandFiets(int regnr, Status status) throws DBException {
+    public void wijzigenToestandFiets(int regnr, Status status, String opmerking) throws DBException {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
@@ -22,5 +24,8 @@ public class FietsDAO {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
+    public List<Fiets> zoekAlleActieveFietsen() throws DBException {
+        throw new UnsupportedOperationException("Not implemented yet!");
+    }
 
 }

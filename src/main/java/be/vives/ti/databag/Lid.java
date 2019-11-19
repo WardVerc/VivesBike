@@ -2,6 +2,7 @@
 package be.vives.ti.databag;
 
 import be.vives.ti.datatype.Rijksregisternummer;
+
 import java.time.LocalDate;
 
 public class Lid {
@@ -12,7 +13,7 @@ public class Lid {
     private String emailadres;
     private LocalDate start_lidmaatschap;
     private LocalDate einde_lidmaatschap;
-    private String opmerkingen;
+    private String opmerking;
 
     public String getRijksregisternummer() {
         if (rijksregisternummer == null) {
@@ -66,17 +67,17 @@ public class Lid {
         this.einde_lidmaatschap = einde_lidmaatschap;
     }
 
-    public String getOpmerkingen() {
-        return opmerkingen;
+    public String getOpmerking() {
+        return opmerking;
     }
 
-    public void setOpmerkingen(String opmerkingen) {
-        this.opmerkingen = opmerkingen;
+    public void setOpmerking(String opmerking) {
+        this.opmerking = opmerking;
     }
 
     @Override
     public String toString() {
-        return "Lid{" + "rijksregisternummer=" + rijksregisternummer + ", naam=" + naam + ", voornaam=" + voornaam  + ", email=" + emailadres + ", start_lidmaatschap=" + start_lidmaatschap + ", einde_lidmaatschap=" + einde_lidmaatschap + ", opmerkingen=" + opmerkingen + '}';
+        return "Lid{" + "rijksregisternummer=" + rijksregisternummer + ", naam=" + naam + ", voornaam=" + voornaam  + ", email=" + emailadres + ", start_lidmaatschap=" + start_lidmaatschap + ", einde_lidmaatschap=" + einde_lidmaatschap + ", opmerkingen=" + opmerking + '}';
     }
 
 }

@@ -4,7 +4,7 @@ import be.vives.ti.databag.Rit;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class RitDAO {
 
@@ -25,12 +25,12 @@ public class RitDAO {
     }
 
 
-    public ArrayList zoekActieveRittenVanLid(String rr) throws DBException, ApplicationException {
+    public List<Rit> zoekActieveRittenVanLid(String rr) throws DBException, ApplicationException {
         throw new UnsupportedOperationException("Not implemented yet!");
 
     }
 
-    public ArrayList zoekActieveRittenVanFiets(int regnr) throws DBException, ApplicationException {
+    public List<Rit> zoekActieveRittenVanFiets(int regnr) throws DBException, ApplicationException {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 

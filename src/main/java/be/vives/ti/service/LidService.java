@@ -4,6 +4,7 @@ import be.vives.ti.databag.Lid;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 
@@ -15,6 +16,10 @@ public class LidService {
     }
 
     public void wijzigenLid(Lid teWijzigenLid) throws ApplicationException, DBException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void wijzigStartDatumVanLid(String rr, LocalDate startDatum) throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 

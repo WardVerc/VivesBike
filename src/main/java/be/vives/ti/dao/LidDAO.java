@@ -5,7 +5,7 @@ import be.vives.ti.databag.Lid;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class LidDAO {
 
@@ -25,7 +25,7 @@ public class LidDAO {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public ArrayList<Lid> zoekAlleLeden() throws DBException, ApplicationException {
+    public List<Lid> zoekAlleLeden() throws DBException, ApplicationException {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 

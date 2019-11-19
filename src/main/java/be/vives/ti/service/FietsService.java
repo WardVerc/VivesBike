@@ -4,6 +4,8 @@ import be.vives.ti.databag.Fiets;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
+import java.util.List;
+
 public class FietsService {
 
 
@@ -11,20 +13,16 @@ public class FietsService {
         throw new UnsupportedOperationException();
     }
 
-    public void wijzigenActiefNaarHerstel(int regnr) throws ApplicationException, DBException {
+    public void wijzigenStatusNaarHerstel(int regnr, String opmerking) throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 
-    public void wijzigenActiefNaarUitOmloop(int regnr) throws ApplicationException, DBException {
+    public void wijzigenStatusNaarUitOmloop(int regnr, String opmerking) throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
 
     }
 
-    public void wijzigenHerstelNaarActief(int regnr) throws ApplicationException, DBException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void wijzigenHerstelNaarUitOmloop(int regnr) throws ApplicationException, DBException {
+    public void wijzigenStatusNaarActief(int regnr, String opmerking) throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 
@@ -34,6 +32,10 @@ public class FietsService {
     }
 
     public Fiets zoekFiets(Integer registratienummer) throws ApplicationException, DBException {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<Fiets> zoekAlleActieveFietsen() throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 
