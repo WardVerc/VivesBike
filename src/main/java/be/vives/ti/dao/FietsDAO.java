@@ -24,7 +24,12 @@ public class FietsDAO {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public List<Fiets> zoekAlleActieveFietsen() throws DBException {
+    /**
+     * Geeft een lijst terug van alle fietsen met de status ACTIEF en die momenteel geen openstaande rit hebben.
+     * @return een lijst van alle beschikbare fietsen
+     * @throws DBException
+     */
+    public List<Fiets> zoekAlleBeschikbareFietsen() throws DBException {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 

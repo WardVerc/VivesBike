@@ -35,7 +35,7 @@ public class FietsService {
         throw new UnsupportedOperationException();
     }
 
-    public List<Fiets> zoekAlleActieveFietsen() throws ApplicationException, DBException {
+    public List<Fiets> zoekAlleBeschikbareFietsen() throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 
