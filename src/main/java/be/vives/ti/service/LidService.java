@@ -5,7 +5,7 @@ import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class LidService {
@@ -31,7 +31,7 @@ public class LidService {
         throw new UnsupportedOperationException();
     }
 
-    public ArrayList<Lid> zoekAlleLeden() throws ApplicationException, DBException {
+    public List<Lid> zoekAlleLeden() throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
     }
 }
