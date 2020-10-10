@@ -1,5 +1,5 @@
 # VIVESBike
-> Project waarbij per 2 een Java applicatie wordt geschreven volgens het gelaagde model. Hierbij wordt een UI in JavaFX geschreven en wordt de data opgehaald uit en weggeschreven  in een MySql database. Zowel de DAO laag als de Service laag worden getest via JUnit. In de Servicelaag wordt de DAO-laag uitgemockt. Mogelijke fouten worden correct opgevangen door Exceptions
+> Project waarbij individueel een Java applicatie wordt geschreven volgens het gelaagde model. Hierbij wordt een UI in JavaFX geschreven en wordt de data opgehaald uit en weggeschreven  in een MySql database. Zowel de DAO laag als de Service laag worden getest via JUnit. In de Servicelaag wordt de DAO-laag uitgemockt. Mogelijke fouten worden correct opgevangen door Exceptions
 
 ## Technologiestack
 - Java 8
@@ -14,17 +14,16 @@
 - SQL
 
 ## Deadlines
-:white_check_mark: Opdracht use-cases: 11 oktober 2019 om 23u55 op Toledo
+:white_check_mark: Opdracht use-cases: 29 november 2020 om 23u55 of 31 januari 2021 om 23u55 op Toledo
 
-:black_square_button: Definitieve versie: 3 april 2020 om 23u55 op GitHub.
+:black_square_button: Definitieve versie: 3 januari 2021 om 23u55 of 7 maart 2021 om 23u55 op GitHub.
 
 ## Indienen definitieve versie
 
 Dien de definitieve versie van je applicatie in met **alle gevraagde functionaliteit** en **de testklassen
 voor RitDAO en RitService**.
 
-Weet dat de versie van je applicatie zoals deze op GitHub staat op
-30 maart om 23:55 telt als de ingediende definitieve versie.
+Weet dat de versie van je applicatie zoals deze op GitHub staat op het moment van de deadline  telt als de ingediende definitieve versie. 
 
 :bangbang:**Zorg er dus zeker voor dat al je code is
 gecommit en gepusht naar je private remote repository op GitHub!**
