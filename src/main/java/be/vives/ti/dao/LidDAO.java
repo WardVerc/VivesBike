@@ -15,11 +15,20 @@ import java.util.List;
 
 public class LidDAO {
 
-    public Integer toevoegenLid(Lid lid) throws DBException {
+    /**
+     * Voegt een lid toe.
+     * @param lid dat toegevoegd wordt.
+     * @return rijksregisternummer van lid dat net werd toegevoegd of null indien geen lid
+     * @throws DBException Exception die duidt op een verkeerde
+     *                      installatie van de DAO of een fout in de query.
+     */
+    public String toevoegenLid(Lid lid) throws DBException {
         if (lid != null) {
-            Integer primaryKey = null;
+            String toegevoegdLid = null;
 
+            //Maak connectie met db
             try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "insert into lid(rijksregisternummer"
                                 + " , voornaam"
@@ -28,8 +37,7 @@ public class LidDAO {
                                 + " , start_lidmaatschap"
                                 + " , einde_lidmaatschap"
                                 + " , opmerking"
-                                + " ) values(?,?,?,?,?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS)) {
+                                + " ) values(?,?,?,?,?,?,?)")) {
                     stmt.setString(1, lid.getRijksregisternummer());
                     stmt.setString(2, lid.getVoornaam());
                     stmt.setString(3, lid.getNaam());
@@ -39,11 +47,9 @@ public class LidDAO {
                     stmt.setString(7, lid.getOpmerking());
                     stmt.execute();
 
-                    ResultSet generatedKeys = stmt.getGeneratedKeys();
+                    toegevoegdLid = lid.getRijksregisternummer();
+                    System.out.println("Nieuw lid toegevoegd met rijksnr: " + toegevoegdLid);
 
-                    if (generatedKeys.next()) {
-                        primaryKey = generatedKeys.getInt(1);
-                    }
                 } catch (SQLException sqlEx) {
                     throw new DBException("SQL-exception in toevoegenLid "
                             + "- statement" + sqlEx);
@@ -53,12 +59,11 @@ public class LidDAO {
                 throw new DBException("SQL-exception in toevoegenLid "
                         + "- connection" + sqlEx);
             }
-            return primaryKey;
+            return toegevoegdLid;
         } else {
             return null;
         }
-
-    }
+        }
 
     public void wijzigenLid(Lid lid) throws DBException {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -68,12 +73,20 @@ public class LidDAO {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
+    /**
+     * Haal luit uit database adhv rijksregisternummer
+     * @param rijksregisternummer
+     * @return null indien niets gevonden, klant die gezocht wordt.
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException Exception die duidt op een fout in getLidUitDatabase()
+     */
     public Lid zoekLid(Rijksregisternummer rijksregisternummer) throws DBException, ApplicationException {
         if (rijksregisternummer != null) {
             Lid returnLid = null;
-            // connectie tot stand brengen (en automatisch sluiten)
+
             try (Connection conn = ConnectionManager.getConnection()) {
-                // preparedStatement opstellen (en automatisch sluiten)
+
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "select rijksregisternummer"
                                 + " , voornaam"
@@ -93,8 +106,7 @@ public class LidDAO {
                     // result opvragen (en automatisch sluiten)
                     try (ResultSet r = stmt.getResultSet()) {
                         // van het lid uit de DAO een Lid-object maken
-                        // er werd een lid gevonden
-                        if (r.next()) {
+                         if (r.next()) {
                             returnLid = getLidUitDatabase(r);
                         }
                         return returnLid;
@@ -118,6 +130,14 @@ public class LidDAO {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
+    /**
+     * zet een lid uit de database-resultset om in een object van type Lid
+     * @param r
+     * @return
+     * @throws SQLException Exception die duidt op een verkeerde
+     *                      installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
     private Lid getLidUitDatabase(ResultSet r) throws SQLException, ApplicationException {
         Lid lid = new Lid();
         Rijksregisternummer rijk = new Rijksregisternummer(r.getString("rijksregisternummer"));
