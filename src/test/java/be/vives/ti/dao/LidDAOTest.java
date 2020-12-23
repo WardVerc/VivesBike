@@ -2,7 +2,8 @@ package be.vives.ti.dao;
 
 import be.vives.ti.databag.Lid;
 import be.vives.ti.datatype.Rijksregisternummer;
-import  be.vives.ti.extra.VerwijderTestData;
+import be.vives.ti.exception.DBException;
+import be.vives.ti.extra.VerwijderTestData;
 import org.assertj.core.api.Assertions;
 //deze hieronder is nodig voor assertThat()
 import static org.assertj.core.api.Assertions.*;
@@ -22,17 +23,16 @@ public class LidDAOTest {
      * @param voornaam van het test lid
      * @param naam
      * @param email
-     * @param startdatum
      * @param rijks
      * @param opmerking
      * @return gemaakte test lid
      */
-    private Lid maakLid(String voornaam, String naam, String email, LocalDate startdatum, Rijksregisternummer rijks, String opmerking) {
+    private Lid maakLid(String voornaam, String naam, String email, Rijksregisternummer rijks, String opmerking) {
         Lid ward = new Lid();
         ward.setVoornaam(voornaam);
         ward.setNaam(naam);
         ward.setEmailadres(email);
-        ward.setStart_lidmaatschap(startdatum);
+        ward.setStart_lidmaatschap(LocalDate.now());
         ward.setRijksregisternummer(rijks);
         ward.setOpmerking(opmerking);
 
@@ -47,7 +47,7 @@ public class LidDAOTest {
         //testdata aanmaken
         Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
 
-        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", LocalDate.now(), rijks, "Test opmerking");
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
 
         try {
             //de te testen methodeuitvoeren met de testdata
@@ -71,6 +71,55 @@ public class LidDAOTest {
         }
     }
 
+    //negatieve test: lid toevoegen zonder voornaam
+    @Test
+    public void testToevoegenLidZonderVoornaam() throws Exception {
 
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid(null, "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        assertThatThrownBy(() -> {
+            lidDAO.toevoegenLid(ward);
+        }).isInstanceOf(DBException.class);
+    }
+
+    //negatieve test: lid toevoegen zonder naam
+    @Test
+    public void testToevoegenLidZonderNaam() throws Exception {
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid("Ward", null, "ward@hotmail.be", rijks, "Test opmerking");
+
+        assertThatThrownBy(() -> {
+            lidDAO.toevoegenLid(ward);
+        }).isInstanceOf(DBException.class);
+    }
+
+    //negatieve test: lid toevoegen zonder email
+    @Test
+    public void testToevoegenLidZonderEmail() throws Exception {
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid("Ward", "Vercruyssen", null, rijks, "Test opmerking");
+
+        assertThatThrownBy(() -> {
+            lidDAO.toevoegenLid(ward);
+        }).isInstanceOf(DBException.class);
+    }
+
+    //negatieve test: lid toevoegen zonder rijksregisternummer
+    @Test
+    public void testToevoegenLidZonderRijksregisternummer() throws Exception {
+
+        //testdata aanmaken
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", null, "Test opmerking");
+
+        assertThatThrownBy(() -> {
+            lidDAO.toevoegenLid(ward);
+        }).isInstanceOf(DBException.class);
+    }
 
 }

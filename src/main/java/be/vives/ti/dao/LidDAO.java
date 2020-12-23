@@ -130,7 +130,7 @@ public class LidDAO {
 
     /**
      * zet een lid uit de database-resultset om in een object van type Lid
-     * @param r
+     * @param r de resultset van de query
      * @return
      * @throws SQLException Exception die duidt op een verkeerde
      *                      installatie van de DAO of een fout in de query.
