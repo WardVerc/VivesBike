@@ -35,16 +35,14 @@ public class LidDAO {
                                 + " , naam"
                                 + " , emailadres"
                                 + " , start_lidmaatschap"
-                                + " , einde_lidmaatschap"
                                 + " , opmerking"
-                                + " ) values(?,?,?,?,?,?,?)")) {
+                                + " ) values(?,?,?,?,?,?)")) {
                     stmt.setString(1, lid.getRijksregisternummer());
                     stmt.setString(2, lid.getVoornaam());
                     stmt.setString(3, lid.getNaam());
                     stmt.setString(4, lid.getEmailadres());
                     stmt.setString(5, lid.getStart_lidmaatschap().toString());
-                    stmt.setString(6, lid.getEinde_lidmaatschap().toString());
-                    stmt.setString(7, lid.getOpmerking());
+                    stmt.setString(6, lid.getOpmerking());
                     stmt.execute();
 
                     toegevoegdLid = lid.getRijksregisternummer();
@@ -142,7 +140,13 @@ public class LidDAO {
         Lid lid = new Lid();
         Rijksregisternummer rijk = new Rijksregisternummer(r.getString("rijksregisternummer"));
         LocalDate start = LocalDate.parse(r.getString("start_lidmaatschap"));
-        LocalDate einde = LocalDate.parse(r.getString("einde_lidmaatschap"));
+        LocalDate einde = null;
+
+        if (r.getString("einde_lidmaatschap") == null) {
+            einde = null;
+        } else {
+            einde = LocalDate.parse(r.getString("einde_lidmaatschap"));
+        }
 
         lid.setVoornaam(r.getString("voornaam"));
         lid.setNaam(r.getString("naam"));

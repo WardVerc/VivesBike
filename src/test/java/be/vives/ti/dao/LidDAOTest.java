@@ -23,18 +23,16 @@ public class LidDAOTest {
      * @param naam
      * @param email
      * @param startdatum
-     * @param einddatum
      * @param rijks
      * @param opmerking
      * @return gemaakte test lid
      */
-    private Lid maakLid(String voornaam, String naam, String email, LocalDate startdatum, LocalDate einddatum, Rijksregisternummer rijks, String opmerking) {
+    private Lid maakLid(String voornaam, String naam, String email, LocalDate startdatum, Rijksregisternummer rijks, String opmerking) {
         Lid ward = new Lid();
         ward.setVoornaam(voornaam);
         ward.setNaam(naam);
         ward.setEmailadres(email);
         ward.setStart_lidmaatschap(startdatum);
-        ward.setEinde_lidmaatschap(einddatum);
         ward.setRijksregisternummer(rijks);
         ward.setOpmerking(opmerking);
 
@@ -47,11 +45,9 @@ public class LidDAOTest {
     public void testToevoegenLid() throws Exception {
 
         //testdata aanmaken
-        LocalDate local = LocalDate.of(2020, 12, 15);
-        LocalDate local2 = LocalDate.of(2020, 12, 30);
         Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
 
-        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", local, local2, rijks, "Test opmerking");
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", LocalDate.now(), rijks, "Test opmerking");
 
         try {
             //de te testen methodeuitvoeren met de testdata
@@ -72,10 +68,9 @@ public class LidDAOTest {
         } finally {
             //testdata verwijderen:
             VerwijderTestData.removeTestLid(rijks);
-
         }
-
-
-
     }
+
+
+
 }
