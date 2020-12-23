@@ -71,6 +71,37 @@ public class LidDAOTest {
         }
     }
 
+    //checkt of je ook leden kan toevoegen zonder opmerking
+    @Test
+    public void testToevoegenLidZonderOpmerking() throws Exception {
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks,null);
+
+        try {
+            //de te testen methodeuitvoeren met de testdata
+            lidDAO.toevoegenLid(ward);
+
+            //haal het lid op met hetzelfde rijksregisternummer
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of de data tussen deze twee leden hetzelfde is
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(ward.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(ward.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(ward.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo(null);
+
+        } finally {
+            //testdata verwijderen:
+            VerwijderTestData.removeTestLid(rijks);
+        }
+    }
+
     //negatieve test: lid toevoegen zonder voornaam
     @Test
     public void testToevoegenLidZonderVoornaam() throws Exception {
