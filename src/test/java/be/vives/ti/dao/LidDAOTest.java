@@ -12,6 +12,7 @@ import org.junit.Test;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class LidDAOTest {
 
@@ -37,6 +38,36 @@ public class LidDAOTest {
         ward.setOpmerking(opmerking);
 
         return ward;
+    }
+
+    private ArrayList<Lid> extraLedenToevoegen() throws Exception {
+        //testdata maken
+        Rijksregisternummer rijks1 = new Rijksregisternummer("94031820982");
+        Lid lid1 = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks1, "Test opmerking");
+        Rijksregisternummer rijks2 = new Rijksregisternummer("94090200136");
+        Lid lid2 = maakLid("Michiel", "Demoor", "michiel@hotmail.be", rijks2, "Test opmerking");
+        Rijksregisternummer rijks3 = new Rijksregisternummer("96030800249");
+        Lid lid3 = maakLid("Kyra", "Matton", "kyra@hotmail.be", rijks3, "Test opmerking");
+        Rijksregisternummer rijks4 = new Rijksregisternummer("92030700193");
+        Lid lid4 = maakLid("Filip", "De Feyter", "filip@hotmail.be", rijks4, "Test opmerking");
+        Rijksregisternummer rijks5 = new Rijksregisternummer("97010100272");
+        Lid lid5 = maakLid("Ianka", "Beys", "ianka@hotmail.be", rijks5, "Test opmerking");
+
+        //leden toevoegen
+        lidDAO.toevoegenLid(lid1);
+        lidDAO.toevoegenLid(lid2);
+        lidDAO.toevoegenLid(lid3);
+        lidDAO.toevoegenLid(lid4);
+        lidDAO.toevoegenLid(lid5);
+
+        ArrayList<Lid> leden = new ArrayList<>();
+        leden.add(lid1);
+        leden.add(lid2);
+        leden.add(lid3);
+        leden.add(lid4);
+        leden.add(lid5);
+
+        return leden;
     }
 
     //Checkt dat data van het aangemaakte lid klopt met data dat opgehaald wordt
@@ -151,6 +182,36 @@ public class LidDAOTest {
         assertThatThrownBy(() -> {
             lidDAO.toevoegenLid(ward);
         }).isInstanceOf(DBException.class);
+    }
+
+    //negatieve test, lid is niet toegevoegd
+    @Test
+    public void testToevoegenLidNull() throws Exception {
+
+        String lidRijks = lidDAO.toevoegenLid(null);
+        assertThat(lidRijks).isNull();
+    }
+
+    //checkt of het correct aantal leden wordt teruggegeven
+    @Test
+    public void testZoekAlleLeden() throws Exception {
+        //leden die al gemaakt zijn
+        int aantalLeden = lidDAO.zoekAlleLeden().size();
+
+        //extra leden toevoegen
+        ArrayList<Lid> leden = extraLedenToevoegen();
+
+        try {
+            //alle leden zoeken
+            ArrayList<Lid> gevondenLeden = lidDAO.zoekAlleLeden();
+
+            assertThat(gevondenLeden.size()).isEqualTo(aantalLeden + 5);
+        } finally {
+            //testdata verwijderen
+            VerwijderTestData.removeTestLeden(leden);
+        }
+
+
     }
 
 }

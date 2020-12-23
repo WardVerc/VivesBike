@@ -7,10 +7,12 @@ import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.datatype.Status;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
+import com.mysql.cj.protocol.Resultset;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LidDAO {
@@ -72,9 +74,9 @@ public class LidDAO {
     }
 
     /**
-     * Haal luit uit database adhv rijksregisternummer
+     * Haal lid uit database adhv rijksregisternummer
      * @param rijksregisternummer
-     * @return null indien niets gevonden, klant die gezocht wordt.
+     * @return null indien niets gevonden, anders de klant die gezocht wordt.
      * @throws DBException Exception die duidt op een verkeerde
      *                     installatie van de DAO of een fout in de query.
      * @throws ApplicationException Exception die duidt op een fout in getLidUitDatabase()
@@ -84,7 +86,6 @@ public class LidDAO {
             Lid returnLid = null;
 
             try (Connection conn = ConnectionManager.getConnection()) {
-
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "select rijksregisternummer"
                                 + " , voornaam"
@@ -124,9 +125,41 @@ public class LidDAO {
         return null;
     }
 
-    public List<Lid> zoekAlleLeden() throws DBException, ApplicationException {
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
+    public ArrayList<Lid> zoekAlleLeden() throws DBException, ApplicationException {
+        //Maak connectie met db
+        try (Connection conn = ConnectionManager.getConnection()) {
+            //SQL statement opstellen
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "select rijksregisternummer"
+                            + " , voornaam"
+                            + " , naam"
+                            + " , emailadres"
+                            + " , start_lidmaatschap"
+                            + " , einde_lidmaatschap"
+                            + " , opmerking"
+                            + " from lid "
+                            + " order by naam"
+                            + "         , voornaam")) {
+                stmt.execute();
+
+                try (ResultSet r = stmt.getResultSet()) {
+                    return getLedenUitDatabase(r);
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in zoekAlleLeden - resultset" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in zoekAlleLeden "
+                        + "- statement" + sqlEx);
+            }
+
+        } catch (SQLException sqlEx) {
+            throw new DBException("SQL-exception in zoekAlleLeden "
+                    + "- connection" + sqlEx);
+        }
+
+
+}
 
     /**
      * zet een lid uit de database-resultset om in een object van type Lid
@@ -158,4 +191,14 @@ public class LidDAO {
 
         return lid;
     }
+
+    private ArrayList<Lid> getLedenUitDatabase(ResultSet r) throws SQLException, ApplicationException {
+        ArrayList<Lid> leden = new ArrayList<>();
+        while (r.next()) {
+            Lid lid = getLidUitDatabase(r);
+            leden.add(lid);
+        }
+        return leden;
+    }
+
 }

@@ -1,12 +1,14 @@
 package be.vives.ti.extra;
 
 import be.vives.ti.dao.connect.ConnectionManager;
+import be.vives.ti.databag.Lid;
 import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.exception.DBException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class VerwijderTestData {
 
@@ -37,5 +39,12 @@ public class VerwijderTestData {
 
         }
 
+        public static void removeTestLeden(ArrayList<Lid> leden) throws Exception {
+            for (Lid l : leden) {
+                Rijksregisternummer r = new Rijksregisternummer(l.getRijksregisternummer());
+                removeTestLid(r);
+            }
+
+        }
 
 }
