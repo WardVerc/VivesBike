@@ -104,8 +104,37 @@ public class LidDAO {
         }
     }
 
-    public void uitschrijvenLid(String rr) throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    /**
+     * Schrijft het lid met meegegeven rijksregisternummer uit (wordt niet verwijderd).
+     * @param rr rijksregisternummer
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     */
+    public void uitschrijvenLid(Rijksregisternummer rr) throws DBException {
+        if (rr != null) {
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "update lid "
+                                + " set einde_lidmaatschap = ?"
+                                + " where rijksregisternummer = ?")) {
+
+                    stmt.setString(1, LocalDate.now().toString());
+                    stmt.setString(2, rr.getRijksregisternummer());
+
+                    stmt.execute();
+
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in uitschrijvenLid "
+                            + "- statement" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in uitschrijvenLid "
+                        + "- connection" + sqlEx);
+            }
+        }
     }
 
     /**

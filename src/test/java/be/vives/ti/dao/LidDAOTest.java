@@ -461,6 +461,36 @@ public class LidDAOTest {
         }
     }
 
+    //lid uitschrijven
+    @Test
+    public void testUitschrijvenLid() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid uitschrijven
+            lidDAO.uitschrijvenLid(rijks);
+
+            //uitgeschreven lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of uitgeschreven lid overeenkomt met opgehaald lid
+            //en dat einddatum lidmaatschap ingevuld is
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isNotNull();
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+
+    }
 
 
 }
