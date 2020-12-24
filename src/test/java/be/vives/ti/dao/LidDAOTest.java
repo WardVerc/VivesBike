@@ -329,6 +329,37 @@ public class LidDAOTest {
         } finally {
             VerwijderTestData.removeTestLid(rijks);
         }
+    }
+
+    //startdatum Lid wijzigen
+    @Test
+    public void testWijzigenLidStartdatum() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        LocalDate date = LocalDate.of(2020, 03, 18);
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid startdatum wijzigen
+            lid.setStart_lidmaatschap(date);
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(date);
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
 
     }
 
@@ -456,6 +487,29 @@ public class LidDAOTest {
             assertThatThrownBy(() -> {
                 lidDAO.wijzigenLid(lid);
             }).isInstanceOf(DBException.class);
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+    }
+
+    //negatieve test, lid wijzigen naar null
+    //startdatum
+    @Test
+    public void testWijzigenLidZonderStartdatum() throws Exception{
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid startdatum wijzigen naar null
+            lid.setStart_lidmaatschap(null);
+
+            assertThatThrownBy(() -> {
+                lidDAO.wijzigenLid(lid);
+                //NullpointerException want null .toString() kan niet
+            }).isInstanceOf(NullPointerException.class);
         } finally {
             VerwijderTestData.removeTestLid(rijks);
         }

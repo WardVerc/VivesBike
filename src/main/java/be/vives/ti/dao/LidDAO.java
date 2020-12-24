@@ -82,14 +82,16 @@ public class LidDAO {
                                 + " set voornaam = ?"
                                 + " , naam = ?"
                                 + " , emailadres = ?"
+                                + " , start_lidmaatschap = ?"
                                 + " , opmerking = ?"
                                 + " where rijksregisternummer = ?")) {
 
                     stmt.setString(1, lid.getVoornaam());
                     stmt.setString(2, lid.getNaam());
                     stmt.setString(3, lid.getEmailadres());
-                    stmt.setString(4, lid.getOpmerking());
-                    stmt.setString(5, lid.getRijksregisternummer());
+                    stmt.setString(4, lid.getStart_lidmaatschap().toString());
+                    stmt.setString(5, lid.getOpmerking());
+                    stmt.setString(6, lid.getRijksregisternummer());
                     stmt.execute();
 
                 } catch (SQLException sqlEx) {
