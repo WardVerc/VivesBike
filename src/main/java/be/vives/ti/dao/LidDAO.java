@@ -1,19 +1,21 @@
 package be.vives.ti.dao;
 
-
 import be.vives.ti.dao.connect.ConnectionManager;
 import be.vives.ti.databag.Lid;
 import be.vives.ti.datatype.Rijksregisternummer;
-import be.vives.ti.datatype.Status;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
-import com.mysql.cj.protocol.Resultset;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
+
+/**
+ * Bevat alle functionaliteit op de DAO-tabel lid:
+ * toevoegen lid, uitschrijven lid, wijzigen lid,
+ * zoek lid adhv rijksregisternummer, zoek alle leden
+ * gesorteerd op naam, voornaam.
+ */
 
 public class LidDAO {
 
@@ -26,7 +28,7 @@ public class LidDAO {
      */
     public String toevoegenLid(Lid lid) throws DBException {
         if (lid != null) {
-            String toegevoegdLid = null;
+            String toegevoegdLid;
 
             //Maak connectie met db
             try (Connection conn = ConnectionManager.getConnection()) {

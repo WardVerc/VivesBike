@@ -4,10 +4,9 @@ import be.vives.ti.databag.Lid;
 import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.exception.DBException;
 import be.vives.ti.extra.VerwijderTestData;
-import org.assertj.core.api.Assertions;
+
 //deze hieronder is nodig voor assertThat()
 import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
 
 
