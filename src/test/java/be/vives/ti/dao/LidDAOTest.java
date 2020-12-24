@@ -210,8 +210,257 @@ public class LidDAOTest {
             //testdata verwijderen
             VerwijderTestData.removeTestLeden(leden);
         }
+    }
 
+    //checkt of het lid dat opgezocht wordt de correcte data bevat
+    @Test
+    public void testZoekLid() throws Exception {
+        //extra leden toevoegen
+        ArrayList<Lid> leden = extraLedenToevoegen();
+
+        try {
+            //maak een rijksregisternummer van de string die gereturned wordt van het eerste lid
+            //dat werd toegevoegd door extraLedenToevoegen()
+            Rijksregisternummer rijks = new Rijksregisternummer(leden.get(0).getRijksregisternummer());
+
+            //het lid ophalen uit de db
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check dat de data overeenkomt van het opgehaalde lid met het eerste lid dat is toegevoegd
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(leden.get(0).getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(leden.get(0).getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(leden.get(0).getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLeden(leden);
+        }
+    }
+
+    //voornaam Lid wijzigen
+    @Test
+    public void testWijzigenLidVoornaam() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid voornaam wijzigen
+            lid.setVoornaam("Filip");
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Filip");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
 
     }
+
+    //naam Lid wijzigen
+    @Test
+    public void testWijzigenLidNaam() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid naam wijzigen
+            lid.setNaam("Demoor");
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Demoor");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+
+    }
+
+    //email Lid wijzigen
+    @Test
+    public void testWijzigenLidEmail() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid email wijzigen
+            lid.setEmailadres("michiel@hotmail.be");
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("michiel@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Test opmerking");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+
+    }
+
+    //opmerking Lid wijzigen
+    @Test
+    public void testWijzigenLidOpmerking() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid opmerking wijzigen
+            lid.setOpmerking("Merry Christmas!");
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo("Merry Christmas!");
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+
+    }
+
+    //opmerking Lid wijzigen, opmerking is leeg
+    @Test
+    public void testWijzigenLidZonderOpmerking() throws Exception {
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid opmerking wijzigen
+            lid.setOpmerking(null);
+            lidDAO.wijzigenLid(lid);
+
+            //gewijzigd lid ophalen
+            Lid ophaalLid = lidDAO.zoekLid(rijks);
+
+            //check of gewijzigd lid overeenkomt met opgehaald lid
+            assertThat(ophaalLid.getRijksregisternummer()).isEqualTo(lid.getRijksregisternummer());
+            assertThat(ophaalLid.getVoornaam()).isEqualTo("Ward");
+            assertThat(ophaalLid.getNaam()).isEqualTo("Vercruyssen");
+            assertThat(ophaalLid.getEmailadres()).isEqualTo("ward@hotmail.be");
+            assertThat(ophaalLid.getStart_lidmaatschap()).isEqualTo(lid.getStart_lidmaatschap());
+            assertThat(ophaalLid.getEinde_lidmaatschap()).isEqualTo(lid.getEinde_lidmaatschap());
+            assertThat(ophaalLid.getOpmerking()).isEqualTo(null);
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+
+    }
+
+
+    //negatieve test, lid wijzigen naar null
+    //voornaam
+    @Test
+    public void testWijzigenLidZonderVoornaam() throws Exception{
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid voornaam wijzigen naar null
+            lid.setVoornaam(null);
+
+            assertThatThrownBy(() -> {
+                lidDAO.wijzigenLid(lid);
+            }).isInstanceOf(DBException.class);
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+    }
+
+    //negatieve test, lid wijzigen naar null
+    //naam
+    @Test
+    public void testWijzigenLidZonderNaam() throws Exception{
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid naam wijzigen naar null
+            lid.setNaam(null);
+
+            assertThatThrownBy(() -> {
+                lidDAO.wijzigenLid(lid);
+            }).isInstanceOf(DBException.class);
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+    }
+
+    //negatieve test, lid wijzigen naar null
+    //email
+    @Test
+    public void testWijzigenLidZonderEmail() throws Exception{
+        //testklant maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+
+        try {
+            //lid toevoegen
+            lidDAO.toevoegenLid(lid);
+            //lid email wijzigen naar null
+            lid.setEmailadres(null);
+
+            assertThatThrownBy(() -> {
+                lidDAO.wijzigenLid(lid);
+            }).isInstanceOf(DBException.class);
+        } finally {
+            VerwijderTestData.removeTestLid(rijks);
+        }
+    }
+
+
 
 }

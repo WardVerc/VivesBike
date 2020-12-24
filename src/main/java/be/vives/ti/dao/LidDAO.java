@@ -65,8 +65,43 @@ public class LidDAO {
         }
         }
 
+
+    /**
+     * Wijzigt voornaam, naam, email en opmerking van een lid
+     * @param lid dat gewijzigd wordt
+     * @throws DBException Exception die duidt op een verkeerde
+     *                      installatie van de DAO of een fout in de query.
+     */
     public void wijzigenLid(Lid lid) throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        if (lid != null) {
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "update lid "
+                                + " set voornaam = ?"
+                                + " , naam = ?"
+                                + " , emailadres = ?"
+                                + " , opmerking = ?"
+                                + " where rijksregisternummer = ?")) {
+
+                    stmt.setString(1, lid.getVoornaam());
+                    stmt.setString(2, lid.getNaam());
+                    stmt.setString(3, lid.getEmailadres());
+                    stmt.setString(4, lid.getOpmerking());
+                    stmt.setString(5, lid.getRijksregisternummer());
+                    stmt.execute();
+
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in wijzigenLid "
+                            + "- statement" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in wijzigenLid "
+                        + "- connection" + sqlEx);
+            }
+        }
     }
 
     public void uitschrijvenLid(String rr) throws DBException {
