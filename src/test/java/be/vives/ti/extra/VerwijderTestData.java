@@ -47,4 +47,23 @@ public class VerwijderTestData {
 
         }
 
+        public static void removeTestFiets(Integer regnr) throws Exception {
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "delete from fiets where registratienummer = ?")) {
+                    //rijk.getRijksregisternummer() zet een Rijksregisternummer-datatype
+                    //om in een string
+                    stmt.setString(1, regnr.toString());
+                    stmt.execute();
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in removeLid - statement" + sqlEx);
+                }
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in removeLid - statement" + sqlEx);
+            }
+
+        }
+
 }
