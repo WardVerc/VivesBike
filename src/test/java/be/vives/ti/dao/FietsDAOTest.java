@@ -46,6 +46,50 @@ public class FietsDAOTest {
         } finally {
             VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
         }
-
     }
+
+    //fiets toevoegen
+    //zonder opmerking
+    @Test public void testToevoegenFietsZonderOpmerking() throws Exception {
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, null);
+
+        try {
+            //fiets toevoegen
+            fiets.setRegistratienummer(fietsDAO.toevoegenFiets(fiets));
+
+            //fiets ophalen
+            Fiets ophaalFiets = fietsDAO.zoekFiets(fiets.getRegistratienummer());
+
+            //vergelijk opgehaalde fiets met toegevoegde fiets
+            assertThat(ophaalFiets.getRegistratienummer()).isEqualTo(fiets.getRegistratienummer());
+            assertThat(ophaalFiets.getStatus()).isEqualTo(Status.actief);
+            assertThat(ophaalFiets.getStandplaats()).isEqualTo(fiets.getStandplaats());
+            assertThat(ophaalFiets.getOpmerking()).isNull();
+
+        } finally {
+            VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
+        }
+    }
+
+    @Test
+    public void testToevoegenFietsZonderStandplaats() {
+        Fiets fiets = maakFiets(null, "Test fietsopmerking");
+
+        assertThatThrownBy(() -> {
+            fietsDAO.toevoegenFiets(fiets);
+            //NullpointerException want null .toString() kan niet
+        }).isInstanceOf(NullPointerException.class);
+    }
+
+    //geen fiets moet null weergeven
+    @Test
+    public void testToevoegenFietsNull() throws Exception {
+        Integer fietsID = fietsDAO.toevoegenFiets(null);
+
+        assertThat(fietsID).isNull();
+    }
+
+    
+
+
 }
