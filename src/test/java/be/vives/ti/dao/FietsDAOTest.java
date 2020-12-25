@@ -89,7 +89,30 @@ public class FietsDAOTest {
         assertThat(fietsID).isNull();
     }
 
-    
 
+    @Test
+    public void testWijzigenFiets() throws Exception {
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        try {
+            //fiets toevoegen
+            fiets.setRegistratienummer(fietsDAO.toevoegenFiets(fiets));
+
+            //fiets wijzigen
+            fietsDAO.wijzigenToestandFiets(fiets.getRegistratienummer(), Status.uit_omloop, "fiets is onherstelbaar");
+
+            //gewijzigde fiets ophalen
+            Fiets ophaalFiets = fietsDAO.zoekFiets(fiets.getRegistratienummer());
+
+            //vergelijk opgehaalde fiets met toegevoegde fiets
+            assertThat(ophaalFiets.getRegistratienummer()).isEqualTo(fiets.getRegistratienummer());
+            assertThat(ophaalFiets.getStatus()).isEqualTo(Status.uit_omloop);
+            assertThat(ophaalFiets.getStandplaats()).isEqualTo(fiets.getStandplaats());
+            assertThat(ophaalFiets.getOpmerking()).isEqualTo("fiets is onherstelbaar");
+
+        } finally {
+            VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
+        }
+    }
 
 }
