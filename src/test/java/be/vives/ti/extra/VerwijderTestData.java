@@ -1,6 +1,7 @@
 package be.vives.ti.extra;
 
 import be.vives.ti.dao.connect.ConnectionManager;
+import be.vives.ti.databag.Fiets;
 import be.vives.ti.databag.Lid;
 import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.exception.DBException;
@@ -66,4 +67,11 @@ public class VerwijderTestData {
 
         }
 
+    public static void removeTestFietsen(ArrayList<Fiets> fietsen) throws Exception {
+        for (Fiets f : fietsen) {
+            Integer regnr = f.getRegistratienummer();
+            removeTestFiets(regnr);
+        }
+
+    }
 }

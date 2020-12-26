@@ -9,7 +9,6 @@ import be.vives.ti.exception.DBException;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FietsDAO {
 
@@ -99,8 +98,38 @@ public class FietsDAO {
         }
     }
 
-    public void wijzigenOpmerkingFiets(int regnr, String opmerking) throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    /**
+     * Wijzigt de opmerking van een fiets adhv het registratienummer.
+     * @param regnr registratienummer van de fiets
+     * @param opmerking opmerking over de fiets
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     */
+    public void wijzigenOpmerkingFiets(Integer regnr, String opmerking) throws DBException {
+        if (regnr != null) {
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "update fiets "
+                                + " set opmerkingen = ?"
+                                + " where registratienummer = ?")) {
+
+                    stmt.setString(1, opmerking);
+                    stmt.setString(2, regnr.toString());
+
+                    stmt.execute();
+
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in wijzigenLid "
+                            + "- statement" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in wijzigenLid "
+                        + "- connection" + sqlEx);
+            }
+        }
     }
 
     /**
@@ -156,11 +185,40 @@ public class FietsDAO {
 
     /**
      * Geeft een lijst terug van alle fietsen met de status ACTIEF en die momenteel geen openstaande rit hebben.
-     * @return een lijst van alle beschikbare fietsen
-     * @throws DBException
+     * @return een lijst van alle beschikbare fietsen gesorteerd op registratienummer
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
      */
-    public List<Fiets> zoekAlleBeschikbareFietsen() throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    public ArrayList<Fiets> zoekAlleBeschikbareFietsen() throws DBException {
+        //Maak connectie met db
+        try (Connection conn = ConnectionManager.getConnection()) {
+            //SQL statement opstellen
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "select registratienummer"
+                            + " , status"
+                            + " , standplaats"
+                            + " , opmerkingen"
+                            + " from fiets "
+                            + " where status = ?"
+                            + " order by registratienummer")) {
+                stmt.setString(1, Status.actief.toString());
+                stmt.execute();
+
+                try (ResultSet r = stmt.getResultSet()) {
+                    return getFietsenUitDatabase(r);
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in zoekAlleLeden - resultset" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in zoekAlleLeden "
+                        + "- statement" + sqlEx);
+            }
+
+        } catch (SQLException sqlEx) {
+            throw new DBException("SQL-exception in zoekAlleLeden "
+                    + "- connection" + sqlEx);
+        }
     }
 
 
