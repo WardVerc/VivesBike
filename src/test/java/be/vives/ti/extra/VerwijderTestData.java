@@ -59,10 +59,10 @@ public class VerwijderTestData {
                     stmt.setString(1, regnr.toString());
                     stmt.execute();
                 } catch (SQLException sqlEx) {
-                    throw new DBException("SQL-exception in removeLid - statement" + sqlEx);
+                    throw new DBException("SQL-exception in removeFiets - statement" + sqlEx);
                 }
             } catch (SQLException sqlEx) {
-                throw new DBException("SQL-exception in removeLid - statement" + sqlEx);
+                throw new DBException("SQL-exception in removeFiets - statement" + sqlEx);
             }
 
         }
@@ -72,6 +72,24 @@ public class VerwijderTestData {
             Integer regnr = f.getRegistratienummer();
             removeTestFiets(regnr);
         }
+    }
+
+    public static void removeTestRit(Integer id) throws Exception {
+        //Maak connectie met db
+        try (Connection conn = ConnectionManager.getConnection()) {
+            //SQL statement opstellen
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "delete from rit where id = ?")) {
+
+                stmt.setInt(1, id);
+                stmt.execute();
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in removeRit - statement" + sqlEx);
+            }
+        } catch (SQLException sqlEx) {
+            throw new DBException("SQL-exception in removeRit - statement" + sqlEx);
+        }
 
     }
+
 }
