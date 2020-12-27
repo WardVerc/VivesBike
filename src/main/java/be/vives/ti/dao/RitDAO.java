@@ -9,7 +9,6 @@ import be.vives.ti.exception.DBException;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 public class RitDAO {
 
@@ -43,7 +42,7 @@ public class RitDAO {
                     if (rit.getEindtijd() == null) {
                         stmt.setNull(2, Types.DATE);
                     } else {
-                        stmt.setTimestamp(1, java.sql.Timestamp.valueOf(rit.getEindtijd()));
+                        stmt.setTimestamp(2, java.sql.Timestamp.valueOf(rit.getEindtijd()));
                     }
                     if (rit.getPrijs() == null) {
                         stmt.setNull(3, Types.DECIMAL);
@@ -76,6 +75,12 @@ public class RitDAO {
         }
     }
 
+    /**
+     * Sluit een rit af door de prijs en eindtijd up te daten van een meegegeven rit.
+     * @param rit de rit die wordt afgesloten
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     */
     public void afsluitenRit(Rit rit) throws DBException {
         if (rit != null) {
             //Maak connectie met db
@@ -114,6 +119,14 @@ public class RitDAO {
         }
     }
 
+    /**
+     * Zoek een rit op basis van een ritID
+     * @param ritID de ID van de rit die gezocht wordt
+     * @return de rit
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
     public Rit zoekRit(Integer ritID) throws DBException, ApplicationException {
         if (ritID != null) {
             Rit returnRit = null;
@@ -159,20 +172,190 @@ public class RitDAO {
         return null;
     }
 
-    public int zoekEersteRitVanLid(String rr) throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    /**
+     * Zoekt de eerste rit van een lid adhv het rijksregisternummer van het lid.
+     * De eerste rit is de rit met de oudste starttijd.
+     * @param rr rijksregisternummer van het lid
+     * @return de ritID dat gevonden is
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
+    public Integer zoekEersteRitVanLid(String rr) throws DBException, ApplicationException {
+        if (rr != null) {
+            Integer returnRitID = null;
+
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "select id"
+                                + " , starttijd"
+                                + " , eindtijd"
+                                + " , prijs"
+                                + " , lid_rijksregisternummer"
+                                + " , fiets_registratienummer"
+                                + " from rit "
+                                + " where lid_rijksregisternummer = ?"
+                + " order by starttijd asc")) {
+
+                    //parameter invullen in query
+                    stmt.setString(1, rr);
+                    stmt.execute();
+
+                    try (ResultSet r = stmt.getResultSet()) {
+                        //van de rit uit de DAO de ID van de rit ophalen
+                        if (r.next()) {
+                            returnRitID = getRitUitDatabase(r).getId();
+                        }
+                        return returnRitID;
+                    } catch (SQLException sqlEx) {
+                        throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                                "- resultset" + sqlEx);
+                    }
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                            "- statment" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                        "- statment" + sqlEx);
+            }
+        }
+        return null;
     }
 
+    /**
+     * Zoekt de actieve rit van een lid adhv het rijksregisternummer van het lid.
+     * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
+     * Een lid kan slechts 1 actieve rit tegelijk hebben.
+     * @param rr rijksregisternummer van het lid.
+     * @return het ID van de rit dat gevonden is
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
+    public Integer zoekActieveRitVanLid(String rr) throws DBException, ApplicationException {
+        if (rr != null) {
+            Integer returnRitID = null;
 
-    public ArrayList<Rit> zoekActieveRittenVanLid(String rr) throws DBException, ApplicationException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "select id"
+                                + " , starttijd"
+                                + " , eindtijd"
+                                + " , prijs"
+                                + " , lid_rijksregisternummer"
+                                + " , fiets_registratienummer"
+                                + " from rit"
+                                + " where lid_rijksregisternummer = ?"
+                                //bij null moet je IS/IS NOT gebruiken ipv = of !=
+                                + " and starttijd IS NOT ?"
+                                + " and eindtijd IS ?")) {
+
+                    //parameter invullen in query
+                    //rit moet gestart zijn (starttijd is niet null)
+                    //rit mag nog niet geëindigd zijn (eindtijd is null)
+                    //= actieve rit
+                    stmt.setString(1, rr);
+                    stmt.setNull(2, Types.DATE);
+                    stmt.setNull(3, Types.DATE);
+                    stmt.execute();
+
+                    try (ResultSet r = stmt.getResultSet()) {
+                        //van de rit uit de DAO de ID van de rit ophalen
+                        if (r.next()) {
+                            returnRitID = getRitUitDatabase(r).getId();
+                        }
+                        return returnRitID;
+                    } catch (SQLException sqlEx) {
+                        throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                                "- resultset" + sqlEx);
+                    }
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                            "- statment" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                        "- statment" + sqlEx);
+            }
+        }
+        return null;
 
     }
 
-    public ArrayList<Rit> zoekActieveRittenVanFiets(int regnr) throws DBException, ApplicationException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    /**
+     * Zoekt de actieve rit van een fiets adhv het registratienummer van de fiets.
+     * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
+     * Een fiets kan slechts 1 actieve rit tegelijk hebben.
+     * @param regnr registratienummer van de fiets.
+     * @return het ID van de rit dat gevonden is
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
+    public Integer zoekActieveRitVanFiets(int regnr) throws DBException, ApplicationException {
+           Integer returnRitID = null;
+
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "select id"
+                                + " , starttijd"
+                                + " , eindtijd"
+                                + " , prijs"
+                                + " , lid_rijksregisternummer"
+                                + " , fiets_registratienummer"
+                                + " from rit"
+                                + " where fiets_registratienummer = ?"
+                                //bij null moet je IS/IS NOT gebruiken ipv = of !=
+                                + " and starttijd IS NOT ?"
+                                + " and eindtijd IS ?")) {
+
+                    //parameter invullen in query
+                    //rit moet gestart zijn (starttijd is niet null)
+                    //rit mag nog niet geëindigd zijn (eindtijd is null)
+                    //= actieve rit
+                    stmt.setInt(1, regnr);
+                    stmt.setNull(2, Types.DATE);
+                    stmt.setNull(3, Types.DATE);
+                    stmt.execute();
+
+                    try (ResultSet r = stmt.getResultSet()) {
+                        //van de rit uit de DAO de ID van de rit ophalen
+                        if (r.next()) {
+                            returnRitID = getRitUitDatabase(r).getId();
+                        }
+                        return returnRitID;
+                    } catch (SQLException sqlEx) {
+                        throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                                "- resultset" + sqlEx);
+                    }
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                            "- statment" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in zoekEersteRitVanLid " +
+                        "- statment" + sqlEx);
+            }
     }
 
+    /**
+     * Zet een resultset van de database om in een Rit-object.
+     * @param r resultset
+     * @return
+     * @throws SQLException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
     public Rit getRitUitDatabase(ResultSet r) throws SQLException, ApplicationException {
         Rit rit = new Rit();
 

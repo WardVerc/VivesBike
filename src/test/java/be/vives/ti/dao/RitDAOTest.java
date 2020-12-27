@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.*;
@@ -128,7 +129,6 @@ public class RitDAOTest {
             ritDAO.toevoegenRit(rit);
         }).isInstanceOf(DBException.class);
 
-        VerwijderTestData.removeTestRit(rit.getId());
         VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
 
     }
@@ -444,6 +444,203 @@ public class RitDAOTest {
         }
     }
 
+    //checkt of de eerste (starttijd is de oudste) rit van een lid opgehaald wordt
+    @Test
+    public void testZoekEersteRitVanLid() throws Exception {
+        //maak testdata aan
+        //lid
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        LidDAO lidDAO = new LidDAO();
+        lidDAO.toevoegenLid(ward);
 
+        //fiets
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+        FietsDAO fietsDAO = new FietsDAO();
+        fiets.setRegistratienummer(fietsDAO.toevoegenFiets(fiets));
+
+        //rit
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        LocalDateTime oudsteDate = LocalDateTime.of(2019, Month.JANUARY, 1, 8, 00, 00);
+        rit.setStarttijd(oudsteDate);
+
+        Rit rit2 = maakRit(rijks, fiets.getRegistratienummer());
+        LocalDateTime middenDate = LocalDateTime.of(2020, Month.JANUARY, 1, 8, 00, 00);
+        rit2.setStarttijd(middenDate);
+
+        Rit rit3 = maakRit(rijks, fiets.getRegistratienummer());
+        LocalDateTime jongsteDate = LocalDateTime.of(2020, Month.FEBRUARY, 1, 8, 00, 00);
+        rit3.setStarttijd(jongsteDate);
+
+        //toevoegen ritten
+        rit.setId(ritDAO.toevoegenRit(rit));
+        rit2.setId(ritDAO.toevoegenRit(rit2));
+        rit3.setId(ritDAO.toevoegenRit(rit3));
+
+        ArrayList<Rit> ritten = new ArrayList<>();
+        ritten.add(rit);
+        ritten.add(rit2);
+        ritten.add(rit3);
+
+        try {
+
+            //ophalen eerste rit
+            Rit ophaalRit = ritDAO.zoekRit(ritDAO.zoekEersteRitVanLid(rijks.getRijksregisternummer()));
+
+            //vergelijk opgehaalde rit met toegevoegde rit
+            assertThat(ophaalRit.getStarttijd()).isEqualTo(oudsteDate);
+
+        } finally {
+            //eerst moet je de rit verwijderen aangezien deze foreign keys (fiets, lid) bevat!
+            //dan pas kan je fiets en lid verwijderen
+            VerwijderTestData.removeTestRitten(ritten);
+            VerwijderTestData.removeTestLid(rijks);
+            VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
+        }
+    }
+
+    //checkt of de actieve rit van een lid opgehaald wordt
+    @Test
+    public void testZoekActieveRitVanLid() throws Exception {
+        //maak testdata aan
+        //lid
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        LidDAO lidDAO = new LidDAO();
+        lidDAO.toevoegenLid(ward);
+
+        //fiets
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+        FietsDAO fietsDAO = new FietsDAO();
+        fiets.setRegistratienummer(fietsDAO.toevoegenFiets(fiets));
+
+        //rit
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Rit rit2 = maakRit(rijks, fiets.getRegistratienummer());
+        Rit rit3 = maakRit(rijks, fiets.getRegistratienummer());
+
+        //start- en eindtijden en prijzen toevoegen behave rit 3 (= actieve rit)
+        LocalDateTime oudsteDate = LocalDateTime.of(2019, Month.JANUARY, 1, 8, 00, 00).withNano(0);
+        rit.setStarttijd(oudsteDate);
+        LocalDateTime eindDate = LocalDateTime.of(2019, Month.JANUARY, 1, 10, 00, 00).withNano(0);
+        rit.setEindtijd(eindDate);
+        rit.setPrijs(BigDecimal.valueOf(1));
+
+        LocalDateTime middenDate = LocalDateTime.of(2020, Month.JANUARY, 5, 8, 00, 00).withNano(0);
+        rit2.setStarttijd(middenDate);
+        LocalDateTime eindDate2 = LocalDateTime.of(2020, Month.JANUARY, 6, 10, 00, 00).withNano(0);
+        rit2.setEindtijd(eindDate2);
+        rit2.setPrijs(BigDecimal.valueOf(2));
+
+        LocalDateTime jongsteDate = LocalDateTime.of(2020, Month.FEBRUARY, 1, 8, 00, 00);
+        rit3.setStarttijd(jongsteDate);
+
+        //toevoegen ritten
+        rit.setId(ritDAO.toevoegenRit(rit));
+        rit2.setId(ritDAO.toevoegenRit(rit2));
+        rit3.setId(ritDAO.toevoegenRit(rit3));
+
+        //afsluiten ritten
+        ritDAO.afsluitenRit(rit);
+        ritDAO.afsluitenRit(rit2);
+
+        ArrayList<Rit> ritten = new ArrayList<>();
+        ritten.add(rit);
+        ritten.add(rit2);
+        ritten.add(rit3);
+
+        try {
+
+            //ophalen actieve rit
+            Rit ophaalRit = ritDAO.zoekRit(ritDAO.zoekActieveRitVanLid(rijks.getRijksregisternummer()));
+
+            //vergelijk opgehaalde rit met toegevoegde rit
+            assertThat(ophaalRit.getId()).isEqualTo(rit3.getId());
+            assertThat(ophaalRit.getStarttijd()).isEqualTo(rit3.getStarttijd());
+            assertThat(ophaalRit.getEindtijd()).isEqualTo(rit3.getEindtijd());
+            assertThat(ophaalRit.getPrijs()).isEqualTo(rit3.getPrijs());
+            assertThat(ophaalRit.getLidRijksregisternummer()).isEqualTo(rit3.getLidRijksregisternummer());
+            assertThat(ophaalRit.getFietsRegistratienummer()).isEqualTo(rit3.getFietsRegistratienummer());
+
+        } finally {
+            //eerst moet je de rit verwijderen aangezien deze foreign keys (fiets, lid) bevat!
+            //dan pas kan je fiets en lid verwijderen
+            VerwijderTestData.removeTestRitten(ritten);
+            VerwijderTestData.removeTestLid(rijks);
+            VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
+        }
+    }
+
+    //checkt of de actieve rit van een fiets opgehaald wordt
+    @Test
+    public void testZoekActieveRitVanFiets() throws Exception {
+        //maak testdata aan
+        //lid
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        LidDAO lidDAO = new LidDAO();
+        lidDAO.toevoegenLid(ward);
+
+        //fiets
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+        FietsDAO fietsDAO = new FietsDAO();
+        fiets.setRegistratienummer(fietsDAO.toevoegenFiets(fiets));
+
+        //rit
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Rit rit2 = maakRit(rijks, fiets.getRegistratienummer());
+        Rit rit3 = maakRit(rijks, fiets.getRegistratienummer());
+
+        //start- en eindtijden en prijzen toevoegen behave rit 3 (= actieve rit)
+        LocalDateTime oudsteDate = LocalDateTime.of(2019, Month.JANUARY, 1, 8, 00, 00).withNano(0);
+        rit.setStarttijd(oudsteDate);
+        LocalDateTime eindDate = LocalDateTime.of(2019, Month.JANUARY, 1, 10, 00, 00).withNano(0);
+        rit.setEindtijd(eindDate);
+        rit.setPrijs(BigDecimal.valueOf(1));
+
+        LocalDateTime middenDate = LocalDateTime.of(2020, Month.JANUARY, 5, 8, 00, 00).withNano(0);
+        rit2.setStarttijd(middenDate);
+        LocalDateTime eindDate2 = LocalDateTime.of(2020, Month.JANUARY, 6, 10, 00, 00).withNano(0);
+        rit2.setEindtijd(eindDate2);
+        rit2.setPrijs(BigDecimal.valueOf(2));
+
+        LocalDateTime jongsteDate = LocalDateTime.of(2020, Month.FEBRUARY, 1, 8, 00, 00);
+        rit3.setStarttijd(jongsteDate);
+
+        //toevoegen ritten
+        rit.setId(ritDAO.toevoegenRit(rit));
+        rit2.setId(ritDAO.toevoegenRit(rit2));
+        rit3.setId(ritDAO.toevoegenRit(rit3));
+
+        //afsluiten ritten
+        ritDAO.afsluitenRit(rit);
+        ritDAO.afsluitenRit(rit2);
+
+        ArrayList<Rit> ritten = new ArrayList<>();
+        ritten.add(rit);
+        ritten.add(rit2);
+        ritten.add(rit3);
+
+        try {
+
+            //ophalen actieve rit
+            Rit ophaalRit = ritDAO.zoekRit(ritDAO.zoekActieveRitVanFiets(fiets.getRegistratienummer()));
+
+            //vergelijk opgehaalde rit met toegevoegde rit
+            assertThat(ophaalRit.getId()).isEqualTo(rit3.getId());
+            assertThat(ophaalRit.getStarttijd()).isEqualTo(rit3.getStarttijd());
+            assertThat(ophaalRit.getEindtijd()).isEqualTo(rit3.getEindtijd());
+            assertThat(ophaalRit.getPrijs()).isEqualTo(rit3.getPrijs());
+            assertThat(ophaalRit.getLidRijksregisternummer()).isEqualTo(rit3.getLidRijksregisternummer());
+            assertThat(ophaalRit.getFietsRegistratienummer()).isEqualTo(rit3.getFietsRegistratienummer());
+
+        } finally {
+            //eerst moet je de rit verwijderen aangezien deze foreign keys (fiets, lid) bevat!
+            //dan pas kan je fiets en lid verwijderen
+            VerwijderTestData.removeTestRitten(ritten);
+            VerwijderTestData.removeTestLid(rijks);
+            VerwijderTestData.removeTestFiets(fiets.getRegistratienummer());
+        }
+    }
 
 }
