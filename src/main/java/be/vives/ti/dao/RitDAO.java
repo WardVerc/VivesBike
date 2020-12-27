@@ -77,7 +77,41 @@ public class RitDAO {
     }
 
     public void afsluitenRit(Rit rit) throws DBException {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        if (rit != null) {
+            //Maak connectie met db
+            try (Connection conn = ConnectionManager.getConnection()) {
+                //SQL statement opstellen
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "update rit "
+                                + " set eindtijd = ?"
+                                + " , prijs = ?"
+                                + " where id = ?")) {
+
+                    if (rit.getEindtijd() == null) {
+                        throw new NullPointerException("Nullpointer-exception in afsluitenRit "
+                        + "- rit.getEindtijd() is null");
+                    } else {
+                        stmt.setTimestamp(1, java.sql.Timestamp.valueOf(rit.getEindtijd()));
+                    }
+                    if (rit.getPrijs() == null) {
+                        throw new NullPointerException("Nullpointer-exception in afsluitenRit "
+                                + "- rit.getPrijs() is null");
+                    } else {
+                        stmt.setBigDecimal(2, rit.getPrijs());
+                    }
+                    stmt.setInt(3, rit.getId());
+                    stmt.execute();
+
+                } catch (SQLException sqlEx) {
+                    throw new DBException("SQL-exception in afsluitenRit "
+                            + "- statement" + sqlEx);
+                }
+
+            } catch (SQLException sqlEx) {
+                throw new DBException("SQL-exception in afsluitenRit "
+                        + "- connection" + sqlEx);
+            }
+        }
     }
 
     public Rit zoekRit(Integer ritID) throws DBException, ApplicationException {
@@ -165,6 +199,7 @@ public class RitDAO {
         //rijksregisternummer-string uit db omzetten naar een rijksregisternr-object
         Rijksregisternummer rijks = new Rijksregisternummer(r.getString("lid_rijksregisternummer"));
         rit.setLidRijksregisternummer(rijks);
+
         rit.setFietsRegistratienummer(r.getInt("fiets_registratienummer"));
 
         return rit;
