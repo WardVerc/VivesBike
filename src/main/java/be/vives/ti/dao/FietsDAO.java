@@ -10,10 +10,11 @@ import be.vives.ti.exception.DBException;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class FietsDAO {
 
-    private RitDAO ritDAO;
+    private RitDAO ritDAO = new RitDAO();
     /**
      * Voegt een fiets toe aan de db. Het registratienummer wordt automatisch gegenereerd door
      * de DAO.
@@ -193,6 +194,7 @@ public class FietsDAO {
      */
     public ArrayList<Fiets> zoekAlleBeschikbareFietsen() throws DBException, ApplicationException {
         ArrayList<Fiets> actieveFietsen;
+        ArrayList<Fiets> fietsenMetActieveRitten = new ArrayList<>();
         //Maak connectie met db
         try (Connection conn = ConnectionManager.getConnection()) {
             //SQL statement opstellen
@@ -212,24 +214,20 @@ public class FietsDAO {
 
                     //nu zit er in actieveFietsen enkel de fietsen met status ACTIEF
                     //hiervan nog de fietsen aftrekken die een actieve rit hebben
-                    ArrayList<Fiets> fietsenMetActieveRitten = new ArrayList<>();
+
 
                     //voeg fietsen met actieve ritten samen in een arraylist
-                    for (int i = 0; i<actieveFietsen.size(); i++) {
+                    //Iterator gebruiken want we verwijderen
+                    for (Iterator<Fiets> it = actieveFietsen.iterator(); it.hasNext();) {
                         //zoek actieve rit van elke fiets met status ACTIEF
-                        Integer ritID = ritDAO.zoekActieveRitVanFiets(actieveFietsen.get(i).getRegistratienummer());
-
-                        if (ritID != null) {
-                            //indien een actieve rit werd gevonden, voeg die fiets toe
-                            //aan een arraylist
-                            int fietsID = ritDAO.zoekRit(ritID).getFietsRegistratienummer();
-                            fietsenMetActieveRitten.add(zoekFiets(fietsID));
+                        Integer ritID = ritDAO.zoekActieveRitVanFiets(it.next().getRegistratienummer());
+                        if (ritID == null){
+                            //doe niets
+                        } else {
+                            //indien een actieve rit werd gevonden, verwijder uit de lijst
+                            it.remove();
                         }
                     }
-
-                    //ten slotte nog de fietsen met actieve ritten
-                    //aftrekken van de actieve fietsen
-                    actieveFietsen.removeAll(fietsenMetActieveRitten);
 
                     return actieveFietsen;
                 } catch (SQLException sqlEx) {

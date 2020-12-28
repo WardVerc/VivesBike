@@ -4,17 +4,26 @@ package be.vives.ti.dao;
 import static org.assertj.core.api.Assertions.*;
 
 import be.vives.ti.databag.Fiets;
+import be.vives.ti.databag.Lid;
+import be.vives.ti.databag.Rit;
+import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.datatype.Standplaats;
 import be.vives.ti.datatype.Status;
+import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 import be.vives.ti.extra.VerwijderTestData;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 
 public class FietsDAOTest {
 
     private FietsDAO fietsDAO = new FietsDAO();
+    private RitDAO ritDAO = new RitDAO();
+    private LidDAO lidDAO = new LidDAO();
 
     //maak testdata (fiets)
     private Fiets maakFiets(Standplaats standplaats, String opmerking) {
@@ -26,7 +35,7 @@ public class FietsDAOTest {
         return fiets;
     }
 
-    private ArrayList<Fiets> extraFietsenToevoegen() throws DBException {
+    private ArrayList<Fiets> extraFietsenToevoegen() throws DBException, ApplicationException {
         Fiets fiets1 = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
         Fiets fiets2 = maakFiets(Standplaats.Oostende, "Geen");
         Fiets fiets3 = maakFiets(Standplaats.Brugge, "Goeie fiets hoor");
@@ -43,6 +52,30 @@ public class FietsDAOTest {
         //wijzigen status fiets 3 en fiets 5
         fietsDAO.wijzigenToestandFiets(fiets3.getRegistratienummer(), Status.uit_omloop, "Onherstelbaar");
         fietsDAO.wijzigenToestandFiets(fiets5.getRegistratienummer(), Status.herstel, "Kapot");
+
+        //fiets1 laten starten aan een rit
+        LidDAO lidDAO = new LidDAO();
+        RitDAO ritDAO = new RitDAO();
+
+        //lid maken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid ward = new Lid();
+        ward.setVoornaam("Ward");
+        ward.setNaam("Vercruyssen");
+        ward.setEmailadres("ward@hotmail.be");
+        ward.setStart_lidmaatschap(LocalDate.now());
+        ward.setRijksregisternummer(rijks);
+        ward.setOpmerking("Test");
+        lidDAO.toevoegenLid(ward);
+
+        //rit maken met fiets1
+        Rit rit = new Rit();
+        rit.setStarttijd(LocalDateTime.now().withNano(0));
+        rit.setLidRijksregisternummer(rijks);
+        rit.setFietsRegistratienummer(fiets1.getRegistratienummer());
+        ritDAO.toevoegenRit(rit);
+
+        //fiets1 heeft nu een actieve rit
 
         ArrayList<Fiets> fietsen = new ArrayList<>();
         fietsen.add(fiets1);
@@ -289,10 +322,14 @@ public class FietsDAOTest {
             //alle beschikbare fietsen zoeken
             ArrayList<Fiets> gevondenFietsen = fietsDAO.zoekAlleBeschikbareFietsen();
 
-            //+ 3 want twee van de 5 toegevoegde fietsen hebben een andere status dan actief gekregen
-            assertThat(gevondenFietsen.size()).isEqualTo(aantalFietsen + 3);
+            //+ 2 want twee van de 5 toegevoegde fietsen hebben een andere status dan actief gekregen
+            // en één fiets is toegewezen aan een actieve rit
+            assertThat(gevondenFietsen.size()).isEqualTo(aantalFietsen + 2);
         } finally {
+            VerwijderTestData.removeTestRit(ritDAO.zoekActieveRitVanFiets(fietsen.get(0).getRegistratienummer()));
             VerwijderTestData.removeTestFietsen(fietsen);
+            Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+            VerwijderTestData.removeTestLid(rijks);
         }
     }
 
