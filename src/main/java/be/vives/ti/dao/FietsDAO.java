@@ -4,6 +4,7 @@ import be.vives.ti.dao.connect.ConnectionManager;
 import be.vives.ti.databag.Fiets;
 import be.vives.ti.datatype.Standplaats;
 import be.vives.ti.datatype.Status;
+import be.vives.ti.dao.RitDAO;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 
 public class FietsDAO {
 
+    private RitDAO ritDAO;
     /**
      * Voegt een fiets toe aan de db. Het registratienummer wordt automatisch gegenereerd door
      * de DAO.
@@ -189,7 +191,8 @@ public class FietsDAO {
      * @throws DBException Exception die duidt op een verkeerde
      *                     installatie van de DAO of een fout in de query.
      */
-    public ArrayList<Fiets> zoekAlleBeschikbareFietsen() throws DBException {
+    public ArrayList<Fiets> zoekAlleBeschikbareFietsen() throws DBException, ApplicationException {
+        ArrayList<Fiets> actieveFietsen;
         //Maak connectie met db
         try (Connection conn = ConnectionManager.getConnection()) {
             //SQL statement opstellen
@@ -205,7 +208,30 @@ public class FietsDAO {
                 stmt.execute();
 
                 try (ResultSet r = stmt.getResultSet()) {
-                    return getFietsenUitDatabase(r);
+                    actieveFietsen = getFietsenUitDatabase(r);
+
+                    //nu zit er in actieveFietsen enkel de fietsen met status ACTIEF
+                    //hiervan nog de fietsen aftrekken die een actieve rit hebben
+                    ArrayList<Fiets> fietsenMetActieveRitten = new ArrayList<>();
+
+                    //voeg fietsen met actieve ritten samen in een arraylist
+                    for (int i = 0; i<actieveFietsen.size(); i++) {
+                        //zoek actieve rit van elke fiets met status ACTIEF
+                        Integer ritID = ritDAO.zoekActieveRitVanFiets(actieveFietsen.get(i).getRegistratienummer());
+
+                        if (ritID != null) {
+                            //indien een actieve rit werd gevonden, voeg die fiets toe
+                            //aan een arraylist
+                            int fietsID = ritDAO.zoekRit(ritID).getFietsRegistratienummer();
+                            fietsenMetActieveRitten.add(zoekFiets(fietsID));
+                        }
+                    }
+
+                    //ten slotte nog de fietsen met actieve ritten
+                    //aftrekken van de actieve fietsen
+                    actieveFietsen.removeAll(fietsenMetActieveRitten);
+
+                    return actieveFietsen;
                 } catch (SQLException sqlEx) {
                     throw new DBException("SQL-exception in zoekAlleLeden - resultset" + sqlEx);
                 }

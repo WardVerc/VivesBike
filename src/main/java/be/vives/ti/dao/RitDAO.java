@@ -294,7 +294,7 @@ public class RitDAO {
      * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
      * Een fiets kan slechts 1 actieve rit tegelijk hebben.
      * @param regnr registratienummer van de fiets.
-     * @return het ID van de rit dat gevonden is
+     * @return het ID van de rit dat gevonden is, null indien geen gevonden
      * @throws DBException Exception die duidt op een verkeerde
      *                     installatie van de DAO of een fout in de query.
      * @throws ApplicationException

@@ -16,12 +16,22 @@ public enum ApplicationExceptionType {
 
 
     //ongeldige operaties lid
-    LID_ID_WORDT_GEGENEREERD("Het lid krijgt automatisch een id en mag dus niet opgegeven worden."),
     LID_UITGESCHREVEN("Het lid is uitgeschreven."),
     LID_BESTAAT_AL("Er bestaat al een lid met dit rijksregisternummer. "),
     LID_BESTAAT_NIET("Het lid werd niet gevonden. "),
     LID_STARTDATUM_TE_RECENT("De startdatum kan niet jonger zijn dan de eerste rit van het lid. "),
     LID_HEEFT_ACTIEVE_RITTEN("Het lid heeft nog ritten die niet beëindigd zijn. "),
+
+    //ongeldige eigenschappen en operaties fiets
+    FIETS_NULL("Er werd geen fiets opgegeven. "),
+    FIETS_ID_WORDT_GEGENEREERD("De fiets krijgt automatisch een id en mag dus niet opgegeven worden. "),
+    FIETS_BESTAAT_AL("Er bestaat al een fiets met dit registratienummer. "),
+    FIETS_BESTAAT_NIET("De fiets werd niet gevonden. "),
+    FIETS_NIET_CORRECTE_STATUS("De fiets heeft niet de correcte status. "),
+
+
+
+
 
 
     ;

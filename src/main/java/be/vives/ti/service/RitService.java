@@ -1,5 +1,7 @@
 package be.vives.ti.service;
 
+import be.vives.ti.dao.LidDAO;
+import be.vives.ti.dao.RitDAO;
 import be.vives.ti.databag.Rit;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.DBException;
@@ -8,6 +10,15 @@ import java.util.List;
 
 public class RitService {
 
+    private RitDAO ritDAO;
+    private LidService lidService;
+    private FietsService fietsService;
+
+    public RitService(RitDAO ritDAO, LidService lidService, FietsService fietsService) {
+        this.ritDAO = ritDAO;
+        this.lidService = lidService;
+        this.fietsService = fietsService;
+    }
 
     public Integer toevoegenRit(Rit rit) throws ApplicationException, DBException {
         throw new UnsupportedOperationException();
