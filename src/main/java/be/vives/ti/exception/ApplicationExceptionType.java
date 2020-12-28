@@ -21,7 +21,7 @@ public enum ApplicationExceptionType {
     LID_BESTAAT_AL("Er bestaat al een lid met dit rijksregisternummer. "),
     LID_BESTAAT_NIET("Het lid werd niet gevonden. "),
     LID_STARTDATUM_TE_RECENT("De startdatum kan niet jonger zijn dan de eerste rit van het lid. "),
-
+    LID_HEEFT_ACTIEVE_RITTEN("Het lid heeft nog ritten die niet beëindigd zijn. "),
 
 
     ;

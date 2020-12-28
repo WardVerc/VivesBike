@@ -2,7 +2,6 @@ package be.vives.ti.service;
 
 import be.vives.ti.dao.LidDAO;
 import be.vives.ti.databag.Lid;
-import be.vives.ti.dao.RitDAO;
 import be.vives.ti.databag.Rit;
 import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.exception.ApplicationException;
@@ -129,8 +128,32 @@ public class LidService {
 
     }
 
+    /**
+     * Schrijft het lid met meegegeven rijksregisternummer uit (wordt niet verwijderd).
+     * @param rr rijksregisternummer
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     */
     public void uitschrijvenLid(String rr) throws ApplicationException, DBException {
-        throw new UnsupportedOperationException();
+        //check of lid in db zit
+        Lid lid = zoekLid(rr);
+        if (lid == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+        }
+
+        //check dat lid niet al uitgeschreven is
+        if (lid.getEinde_lidmaatschap() != null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_UITGESCHREVEN.getMessage());
+        }
+
+        //check dat lid niet nog actieve ritten heeft
+        if (ritService.zoekActieveRittenVanLid(rr) != null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_HEEFT_ACTIEVE_RITTEN.getMessage());
+        }
+
+        //rijksregisternr - string omzetten in Rijksregisternummer-object
+        Rijksregisternummer rijks = new Rijksregisternummer(rr);
+        lidDAO.uitschrijvenLid(rijks);
     }
 
     /**
