@@ -193,6 +193,13 @@ public class LidDAO {
         return null;
     }
 
+    /**
+     * Zoekt alle leden en geeft ze terug in een lijst, gesorteerd op naam, voornaam.
+     * @return lijst van leden
+     * @throws DBException Exception die duidt op een verkeerde installatie van de
+     * be.vives.DAO of een fout in de query
+     * @throws ApplicationException
+     */
     public ArrayList<Lid> zoekAlleLeden() throws DBException, ApplicationException {
         //Maak connectie met db
         try (Connection conn = ConnectionManager.getConnection()) {
