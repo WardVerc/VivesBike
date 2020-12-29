@@ -64,6 +64,11 @@ public class FietsService {
             throw new ApplicationException(ApplicationExceptionType.FIETS_NIET_CORRECTE_STATUS.getMessage());
         }
 
+        //check dat fiets niet in een actieve rit zit
+        if (ritService.zoekActieveRitVanFiets(regnr) != null) {
+            throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
+        }
+
         //fietsstatus wijzigen naar HERSTEL
         fietsDAO.wijzigenToestandFiets(regnr, Status.herstel, opmerking);
 
@@ -82,6 +87,11 @@ public class FietsService {
         Fiets fiets = zoekFiets(regnr);
         if (fiets == null) {
             throw new ApplicationException(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
+        }
+
+        //check dat fiets niet in een actieve rit zit
+        if (ritService.zoekActieveRitVanFiets(regnr) != null) {
+            throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
         }
 
         //check dat fiets niet status UIT OMLOOP heeft

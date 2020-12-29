@@ -216,7 +216,6 @@ public class FietsDAO {
                     //hiervan nog de fietsen aftrekken die een actieve rit hebben
 
 
-                    //voeg fietsen met actieve ritten samen in een arraylist
                     //Iterator gebruiken want we verwijderen
                     for (Iterator<Fiets> it = actieveFietsen.iterator(); it.hasNext();) {
                         //zoek actieve rit van elke fiets met status ACTIEF

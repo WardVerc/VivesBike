@@ -48,6 +48,9 @@ public class LidService {
             throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_AL.getMessage());
         }
 
+        //stel startdatum in
+        l.setStart_lidmaatschap(LocalDate.now());
+
         //lid toevoegen
         return lidDAO.toevoegenLid(l);
 
@@ -147,7 +150,7 @@ public class LidService {
         }
 
         //check dat lid niet nog actieve ritten heeft
-        if (ritService.zoekActieveRittenVanLid(rr) != null) {
+        if (ritService.zoekActieveRitVanLid(rr) != null) {
             throw new ApplicationException(ApplicationExceptionType.LID_HEEFT_ACTIEVE_RITTEN.getMessage());
         }
 

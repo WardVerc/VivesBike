@@ -28,8 +28,15 @@ public enum ApplicationExceptionType {
     FIETS_BESTAAT_AL("Er bestaat al een fiets met dit registratienummer. "),
     FIETS_BESTAAT_NIET("De fiets werd niet gevonden. "),
     FIETS_NIET_CORRECTE_STATUS("De fiets heeft niet de correcte status. "),
+    FIETS_IN_GEBRUIK("De fiets is in gebruik. "),
 
-
+    //ongeldige eigenschappen en operaties rit
+    RIT_NULL("Er werd geen rit opgegeven. "),
+    RIT_ID_WORDT_GEGENEREERD("De rit krijgt automatisch een id en mag dus niet opgegeven worden. "),
+    RIT_BESTAAT_NIET("Deze rit bestaat niet. "),
+    RIT_AL_AFGESLOTEN("De rit is al afgesoten. "),
+    RIT_NIET_GESTART("Deze rit is nog niet gestart. "),
+    RIT_PRIJS_AL_BEPAALD("Deze rit heeft al een prijs. "),
 
 
 
