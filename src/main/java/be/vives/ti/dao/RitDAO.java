@@ -176,7 +176,7 @@ public class RitDAO {
      * Zoekt de eerste rit van een lid adhv het rijksregisternummer van het lid.
      * De eerste rit is de rit met de oudste starttijd.
      * @param rr rijksregisternummer van het lid
-     * @return de ritID dat gevonden is
+     * @return de ritID dat gevonden is, null indien geen gevonden.
      * @throws DBException Exception die duidt op een verkeerde
      *                     installatie van de DAO of een fout in de query.
      * @throws ApplicationException
@@ -231,7 +231,7 @@ public class RitDAO {
      * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
      * Een lid kan slechts 1 actieve rit tegelijk hebben.
      * @param rr rijksregisternummer van het lid.
-     * @return het ID van de rit dat gevonden is
+     * @return het ID van de rit dat gevonden is, null indien geen gevonden.
      * @throws DBException Exception die duidt op een verkeerde
      *                     installatie van de DAO of een fout in de query.
      * @throws ApplicationException

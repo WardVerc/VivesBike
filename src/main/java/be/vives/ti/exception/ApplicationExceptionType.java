@@ -24,6 +24,7 @@ public enum ApplicationExceptionType {
 
     //ongeldige eigenschappen en operaties fiets
     FIETS_NULL("Er werd geen fiets opgegeven. "),
+    FIETS_ID("Er werd geen fietsid opgegeven."),
     FIETS_ID_WORDT_GEGENEREERD("De fiets krijgt automatisch een id en mag dus niet opgegeven worden. "),
     FIETS_BESTAAT_AL("Er bestaat al een fiets met dit registratienummer. "),
     FIETS_BESTAAT_NIET("De fiets werd niet gevonden. "),

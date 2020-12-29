@@ -1,6 +1,5 @@
 package be.vives.ti.service;
 
-import be.vives.ti.dao.LidDAO;
 import be.vives.ti.dao.RitDAO;
 import be.vives.ti.databag.Rit;
 import be.vives.ti.datatype.Status;
@@ -11,7 +10,6 @@ import be.vives.ti.exception.DBException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class RitService {
 
@@ -156,19 +154,92 @@ public class RitService {
         ritDAO.afsluitenRit(zoekRit(ritId));
     }
 
+    /**
+     * Zoekt een rit op adhv een id. Indien geen rit werd gevonden, wordt null
+     * teruggegeven.
+     * @param ritID id van de rit die gezocht wordt
+     * @return rit die gezocht werd, null indien geen gevonden.
+     * @throws ApplicationException Wordt gegooid wanneer geen ritID werd opgegeven.
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de be.vives.DAO of een fout in de query.
+     */
     public Rit zoekRit(Integer ritID) throws ApplicationException, DBException {
-        throw new UnsupportedOperationException();
+        //check dat parameter is ingevuld
+        if (ritID == null) {
+            throw new ApplicationException(ApplicationExceptionType.RIT_NULL.getMessage());
+        }
+        return ritDAO.zoekRit(ritID);
     }
 
+    /**
+     * Zoekt de eerste rit van een lid adhv het rijksregisternummer van het lid.
+     *
+     * @param rr rijksregisternummer van het lid
+     * @return de ritID dat gevonden is, null indien geen gevonden
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException
+     */
     public Integer zoekEersteRitVanLid(String rr) throws ApplicationException, DBException {
-        throw new UnsupportedOperationException();
+        //check parameter is ingevuld
+        if (rr == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_RR_LEEG.getMessage());
+        }
+
+        //check dat lid bestaat
+        if (lidService.zoekLid(rr) == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+        }
+
+        return ritDAO.zoekEersteRitVanLid(rr);
     }
 
+    /**
+     * Zoekt de actieve rit van een lid adhv het rijksregisternummer van het lid.
+     * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
+     * Een lid kan slechts 1 actieve rit tegelijk hebben.
+     * @param rr rijksregisternummer van het lid.
+     * @return het ID van de rit dat gevonden is, null indien geen gevonden.
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException wordt gegooid indien geen rijksregisternummer werd opgegeven.
+     */
     public Integer zoekActieveRitVanLid(String rr) throws DBException, ApplicationException {
-        throw new UnsupportedOperationException();
+        //check parameter is ingevuld
+        if (rr == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_RR_LEEG.getMessage());
+        }
+
+        //check dat lid bestaat
+        if (lidService.zoekLid(rr) == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+        }
+
+        return ritDAO.zoekActieveRitVanLid(rr);
     }
 
+    /**
+     * Zoekt de actieve rit van een fiets adhv het registratienummer van de fiets.
+     * De actieve rit is de rit dat een starttijd heeft maar nog geen eindtijd.
+     * Een fiets kan slechts 1 actieve rit tegelijk hebben.
+     * @param regnr registratienummer van de fiets.
+     * @return het ID van de rit dat gevonden is, null indien geen gevonden
+     * @throws DBException Exception die duidt op een verkeerde
+     *                     installatie van de DAO of een fout in de query.
+     * @throws ApplicationException wordt gegooid indien geen registratienummer
+     *                              werd opgegeven, of de fiets werd niet teruggevonden.
+     */
     public Integer zoekActieveRitVanFiets(Integer regnr) throws DBException, ApplicationException {
-        throw new UnsupportedOperationException();
+        //check dat parameter is ingevuld
+        if (regnr == null) {
+            throw new ApplicationException(ApplicationExceptionType.FIETS_NULL.getMessage());
+        }
+
+        //check dat fiets bestaat
+        if (fietsService.zoekFiets(regnr) == null) {
+            throw new ApplicationException(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
+        }
+
+        return ritDAO.zoekActieveRitVanFiets(regnr);
     }
 }
