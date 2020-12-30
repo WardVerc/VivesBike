@@ -11,6 +11,7 @@ import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.ApplicationExceptionType;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -353,6 +354,155 @@ public class RitServiceTest {
         }).doesNotThrowAnyException();
     }
 
-    
+    @Test
+    public void afsluitenRitNull() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.afsluitenRit(null);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_NULL.getMessage());
 
+        verify(ritDAO,never()).afsluitenRit(null);
+    }
+
+    @Test
+    public void afsluitenRitBestaatNiet() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.afsluitenRit(123);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_BESTAAT_NIET.getMessage());
+
+        verify(ritDAO,never()).afsluitenRit(null);
+    }
+
+    @Test
+    public void afsluitenRitNietGestart() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        //mocken dat rit gevonden wordt
+        when(ritService.zoekRit(ritId)).thenReturn(rit);
+
+        //mocken dat rit geen starttijd heeft
+        rit.setStarttijd(null);
+
+        assertThatThrownBy(() -> {
+            ritService.afsluitenRit(rit.getId());
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_NIET_GESTART.getMessage());
+
+        verify(ritDAO,never()).afsluitenRit(rit);
+    }
+
+    @Test
+    public void afsluitenRitAlAfgesloten() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        //mocken dat rit gevonden wordt
+        when(ritService.zoekRit(ritId)).thenReturn(rit);
+
+        //mocken dat rit al afgesloten is
+        LocalDateTime date = LocalDateTime.of(2020, 12, 29, 18, 0);
+        rit.setEindtijd(date);
+
+        assertThatThrownBy(() -> {
+            ritService.afsluitenRit(rit.getId());
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_AL_AFGESLOTEN.getMessage());
+
+        verify(ritDAO,never()).afsluitenRit(rit);
+    }
+
+    @Test
+    public void afsluitenRitMetPrijs() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        //mocken dat rit een prijs heeft
+        rit.setPrijs(BigDecimal.ONE);
+
+        //mocken dat rit gevonden wordt
+        when(ritService.zoekRit(ritId)).thenReturn(rit);
+
+        assertThatThrownBy(() -> {
+            ritService.afsluitenRit(rit.getId());
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_PRIJS_AL_BEPAALD.getMessage());
+
+        verify(ritDAO,never()).afsluitenRit(rit);
+    }
+
+    @Test
+    public void afsluitenRitSuccesvol() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        //mocken dat rit gevonden wordt
+        when(ritService.zoekRit(ritId)).thenReturn(rit);
+
+        assertThatCode(() -> {
+            ritService.afsluitenRit(rit.getId());
+        }).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void afsluitenRitCorrectePrijsbepaling() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        //zorg ervoor dat de fiets 25uur gehuurd werd en dus de prijs 2 euro is
+        LocalDateTime date = LocalDateTime.now().minusHours(25);
+        rit.setStarttijd(date);
+
+        //mocken dat rit gevonden wordt
+        when(ritService.zoekRit(ritId)).thenReturn(rit);
+
+        assertThatCode(() -> {
+            ritService.afsluitenRit(rit.getId());
+        }).doesNotThrowAnyException();
+
+        assertThat(rit.getPrijs()).isEqualTo(BigDecimal.valueOf(2));
+    }
+
+    
 }
