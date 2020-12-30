@@ -105,6 +105,28 @@ public class RitServiceTest {
     }
 
     @Test
+    public void toevoegenRitMetId() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat rit toegevoegd is
+        rit.setId(123);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_ID_WORDT_GEGENEREERD.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
     public void toevoegenRitLidBestaatNiet() throws Exception {
         //testdata aanmaken
         Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
@@ -150,6 +172,185 @@ public class RitServiceTest {
         }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_UITGESCHREVEN.getMessage());
 
         verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitHeeftActieveRitten() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken dat lid actieve ritten heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(123);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_HEEFT_ACTIEVE_RITTEN.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitFietsBestaatNiet() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken lid geen actieve rit heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(null);
+
+        //mocken dat fiets niet gevonden wordt
+        when(fietsService.zoekFiets(rit.getFietsRegistratienummer())).thenReturn(null);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitFietsVerkeerdeStatus() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken lid geen actieve rit heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(null);
+
+        //mocken dat fiets gevonden
+        when(fietsService.zoekFiets(rit.getFietsRegistratienummer())).thenReturn(fiets);
+
+        //mocken dat fiets verkeerde status heeft
+        fiets.setStatus(Status.herstel);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.FIETS_NIET_CORRECTE_STATUS.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitFietsHeeftActieveRit() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken lid geen actieve rit heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(null);
+
+        //mocken dat fiets gevonden
+        when(fietsService.zoekFiets(rit.getFietsRegistratienummer())).thenReturn(fiets);
+
+        //mocken dat fiets actieve rit heeft
+        when(ritService.zoekActieveRitVanFiets(rit.getFietsRegistratienummer())).thenReturn(123);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitIsAlAfgesloten() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken lid geen actieve rit heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(null);
+
+        //mocken dat fiets gevonden
+        when(fietsService.zoekFiets(rit.getFietsRegistratienummer())).thenReturn(fiets);
+
+        //mocken dat fiets geen actieve rit heeft
+        when(ritService.zoekActieveRitVanFiets(rit.getFietsRegistratienummer())).thenReturn(null);
+
+        //mocken dat rit al is afgesloten
+        LocalDateTime date = LocalDateTime.of(2020, 12, 29, 18, 0);
+        rit.setEindtijd(date);
+
+        assertThatThrownBy(() -> {
+            ritService.toevoegenRit(rit);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_AL_AFGESLOTEN.getMessage());
+
+        verify(ritDAO, never()).toevoegenRit(rit);
+    }
+
+    @Test
+    public void toevoegenRitSuccesvol() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        //mocken lid geen actieve rit heeft
+        when(ritService.zoekActieveRitVanLid(rit.getLidRijksregisternummer())).thenReturn(null);
+
+        //mocken dat fiets gevonden
+        when(fietsService.zoekFiets(rit.getFietsRegistratienummer())).thenReturn(fiets);
+
+        //mocken dat fiets geen actieve rit heeft
+        when(ritService.zoekActieveRitVanFiets(rit.getFietsRegistratienummer())).thenReturn(null);
+
+        assertThatCode(() -> {
+            ritService.toevoegenRit(rit);
+        }).doesNotThrowAnyException();
     }
 
     
