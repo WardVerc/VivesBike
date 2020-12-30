@@ -504,5 +504,158 @@ public class RitServiceTest {
         assertThat(rit.getPrijs()).isEqualTo(BigDecimal.valueOf(2));
     }
 
-    
+    @Test
+    public void zoekRitNull() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekRit(null);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.RIT_NULL.getMessage());
+
+        verify(ritDAO,never()).zoekRit(null);
+    }
+
+    @Test
+    public void zoekRitSuccesvol() throws Exception {
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+
+        when(ritDAO.zoekRit(ritId)).thenReturn(rit);
+
+        assertThat(ritService.zoekRit(ritId)).isEqualTo(rit);
+    }
+
+    @Test
+    public void zoekEersteRitVanLidNull() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekEersteRitVanLid(null);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_RR_LEEG.getMessage());
+
+        verify(ritDAO,never()).zoekEersteRitVanLid(null);
+    }
+
+    @Test
+    public void zoekEersteRitVanLidLidBestaatNiet() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekEersteRitVanLid("123");
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+
+    }
+
+    @Test
+    public void zoekEersteRitVanLidSuccesvol() throws Exception {
+        //zie ook test van RitDAO: testZoekEersteRitvanLid()
+        //daar wordt getest dat de rit inderdaad de oudste/eerste rit is van het lid
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+        String rr = lid.getRijksregisternummer();
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        when(ritDAO.zoekEersteRitVanLid(rr)).thenReturn(ritId);
+
+        assertThat(ritService.zoekEersteRitVanLid(rr)).isEqualTo(ritId);
+    }
+
+    @Test
+    public void zoekActieveRitVanLidNull() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekActieveRitVanLid(null);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_RR_LEEG.getMessage());
+
+        verify(ritDAO,never()).zoekActieveRitVanLid(null);
+    }
+
+    @Test
+    public void zoekActieveRitVanLidLidBestaatNiet() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekActieveRitVanLid("123");
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+    }
+
+    @Test
+    public void zoekActieveRitVanLidSuccesvol() throws Exception {
+        //zie ook test van RitDAO: testZoekActieveRitvanLid()
+        //daar wordt getest dat de rit inderdaad enkel die zonder eindtijd (met starttijd)
+        // is van het lid
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+        String rr = lid.getRijksregisternummer();
+
+        //mocken dat lid gevonden wordt
+        when(lidService.zoekLid(lid.getRijksregisternummer())).thenReturn(lid);
+
+        when(ritDAO.zoekActieveRitVanLid(rr)).thenReturn(ritId);
+
+        assertThat(ritService.zoekActieveRitVanLid(rr)).isEqualTo(ritId);
+    }
+
+    @Test
+    public void zoekActieveRitVanFietsNull() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekActieveRitVanFiets(null);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.FIETS_NULL.getMessage());
+    }
+
+    @Test
+    public void zoekActieveRitVanFietsGeenFiets() throws Exception {
+        assertThatThrownBy(() -> {
+            ritService.zoekActieveRitVanFiets(123);
+        }).isInstanceOf(ApplicationException.class).hasMessage(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
+    }
+
+    @Test
+    public void zoekActieveRitVanFietsSuccesvol() throws Exception {
+        //zie ook test van RitDAO: testZoekActieveRitvanFiets()
+        //daar wordt getest dat de rit inderdaad enkel die zonder eindtijd (met starttijd)
+        // is van de fiets
+
+        //testdata aanmaken
+        Rijksregisternummer rijks = new Rijksregisternummer("94031820982");
+        Lid lid = maakLid("Ward", "Vercruyssen", "ward@hotmail.be", rijks, "Test opmerking");
+        Fiets fiets = maakFiets(Standplaats.Kortrijk, "Test fietsopmerking");
+
+        //simuleer dat fiets is toegevoegd aan db en dus registratienummer heeft
+        fiets.setRegistratienummer(123);
+
+        Rit rit = maakRit(rijks, fiets.getRegistratienummer());
+        Integer ritId = 123;
+        rit.setId(ritId);
+        Integer rr = fiets.getRegistratienummer();
+
+        //mocken dat lid gevonden wordt
+        when(fietsService.zoekFiets(fiets.getRegistratienummer())).thenReturn(fiets);
+
+        when(ritDAO.zoekActieveRitVanFiets(rr)).thenReturn(ritId);
+
+        assertThat(ritService.zoekActieveRitVanFiets(rr)).isEqualTo(ritId);
+    }
 }
