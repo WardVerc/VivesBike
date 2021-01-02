@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.fxml.FXML;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class LedenBeheerController {
@@ -21,7 +22,7 @@ public class LedenBeheerController {
     private LidService lidService;
     private RitService ritService;
 
-    //Lid dat geselecteerd is/moet zijn.
+    //lid dat geselecteerd is/moet zijn.
     private Lid geselecteerdLid;
 
     public LedenBeheerController(RitService ritService, LidService lidService) {
@@ -39,6 +40,20 @@ public class LedenBeheerController {
     private TableColumn tcRijksreg;
     @FXML
     private Label laErrorLeden;
+    @FXML
+    private TextField tfVoornaam;
+    @FXML
+    private TextField tfNaam;
+    @FXML
+    private TextField tfRijksregisternummer;
+    @FXML
+    private TextField tfEmail;
+    @FXML
+    private DatePicker dpStartdatum;
+    @FXML
+    private CheckBox cbUitgeschreven;
+    @FXML
+    private TextArea taOpmerking;
 
     public void initialize() {
         //kolommen van de tabel initialiseren (koppelen met velden uit bag)
@@ -87,6 +102,52 @@ public class LedenBeheerController {
             tvLeden.setItems(leden);
         } catch (DBException | ApplicationException ae) {
             laErrorLeden.setText("Onherstelbare fout: " + ae.getMessage());
+        }
+    }
+
+    //deze methode zou moeten aangeroepen worden als er een lid uit de tabel geselecteerd wordt
+    @FXML
+    private void selecteerLid(ActionEvent event) throws DBException, ApplicationException {
+        resetErrorMessage();
+        //geselecteerd lid ophalen en tonen
+        Lid l = tvLeden.getSelectionModel().getSelectedItem();
+        System.out.println(l);
+        if (l != null) {
+            geselecteerdLid = l;
+        } else {
+            geselecteerdLid = null;
+        }
+        selecteer(geselecteerdLid);
+    }
+
+    /**
+     * Toon gegevens van het geselecteerde lid in de velden.
+     * @param l het geselecteerde lid.
+     */
+    private void selecteer(Lid l) throws DBException, ApplicationException {
+        if (l != null) {
+            //gegevens van het geselecteerde lid ophalen en tonen
+            tfRijksregisternummer.setText(l.getRijksregisternummer());
+            tfVoornaam.setText(l.getVoornaam());
+            tfNaam.setText(l.getNaam());
+            tfEmail.setText(l.getEmailadres());
+            dpStartdatum.setValue(l.getStart_lidmaatschap());
+            taOpmerking.setText(l.getOpmerking());
+
+            if (l.getEinde_lidmaatschap() != null) {
+                cbUitgeschreven.setSelected(true);
+            } else {
+                cbUitgeschreven.setSelected(false);
+            }
+        } else {
+            //geen lid = gegevens zijn leeg
+            tfRijksregisternummer.setText("");
+            tfVoornaam.setText("");
+            tfNaam.setText("");
+            tfEmail.setText("");
+            dpStartdatum.setValue(LocalDate.of(1,1,1));
+            taOpmerking.setText("");
+            cbUitgeschreven.setSelected(true);
         }
     }
 
