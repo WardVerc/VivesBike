@@ -37,12 +37,7 @@ public enum ApplicationExceptionType {
     RIT_BESTAAT_NIET("Deze rit bestaat niet. "),
     RIT_AL_AFGESLOTEN("De rit is al afgesoten. "),
     RIT_NIET_GESTART("Deze rit is nog niet gestart. "),
-    RIT_PRIJS_AL_BEPAALD("Deze rit heeft al een prijs. "),
-
-
-
-
-    ;
+    RIT_PRIJS_AL_BEPAALD("Deze rit heeft al een prijs. ");
 
     private final String message;
 

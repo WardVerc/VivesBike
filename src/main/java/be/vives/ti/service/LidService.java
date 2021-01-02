@@ -10,6 +10,7 @@ import be.vives.ti.exception.DBException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -185,7 +186,7 @@ public class LidService {
      * be.vives.DAO of een fout in de query
      * @throws ApplicationException
      */
-    public List<Lid> zoekAlleLeden() throws ApplicationException, DBException {
+    public ArrayList<Lid> zoekAlleLeden() throws ApplicationException, DBException {
         return lidDAO.zoekAlleLeden();
     }
 

@@ -37,3 +37,33 @@ CREATE TABLE IF NOT EXISTS `Rit` (
     REFERENCES `Lid` (`rijksregisternummer`)
     ON DELETE RESTRICT
     ON UPDATE NO ACTION);
+
+INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
+values ('94031820982', 'Ward', 'Vercuyssen', 'ward@hotmail.be', '2021-01-01', 'Test opmerking');
+
+INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
+values ('94090200136', 'Michiel', 'Demoor', 'michiel@hotmail.be', '2021-01-01', 'Test');
+
+INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
+values ('96030800249', 'Kyra', 'Matton', 'kyra@hotmail.be', '2021-01-01', 'Testing');
+
+INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
+values ('97010100272', 'Ianka', 'Beys', 'ianka@hotmail.be', '2021-01-01', 'Geen opmerking');
+
+INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
+values ('92030700193', 'Filip', 'De Feyter', 'filip@hotmail.be', '2021-01-01', 'Opmerking');
+
+INSERT INTO Fiets (status, standplaats, opmerkingen)
+VALUES ('actief', 'Oostende', 'Test opmerking');
+
+INSERT INTO Fiets (status, standplaats, opmerkingen)
+VALUES ('actief', 'Kortrijk', 'Opmerking');
+
+INSERT INTO Fiets (status, standplaats, opmerkingen)
+VALUES ('actief', 'Brugge', 'Goede fiets');
+
+INSERT INTO Fiets (status, standplaats, opmerkingen)
+VALUES ('actief', 'Tielt', 'Dikke banden');
+
+INSERT INTO Fiets (status, standplaats, opmerkingen)
+VALUES ('actief', 'Torhout', 'Geen spatbord');
