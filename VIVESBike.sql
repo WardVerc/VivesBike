@@ -52,4 +52,3 @@ values ('94010700223', 'Ianka', 'Beys', 'ianka@hotmail.be', '2021-01-01', 'Geen 
 
 INSERT INTO Lid (rijksregisternummer, voornaam, naam, emailadres, start_lidmaatschap, opmerking)
 values ('94011700115', 'Filip', 'De Feyter', 'filip@hotmail.be', '2021-01-01', 'Opmerking');
-
