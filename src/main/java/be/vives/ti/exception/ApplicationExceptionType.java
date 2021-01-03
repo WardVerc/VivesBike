@@ -13,6 +13,7 @@ public enum ApplicationExceptionType {
     LID_EMAIL_LEEG("Er werd geen emailadres opgegeven. "),
     LID_RR_LEEG("Er werd geen rijksregisternummer opgegeven. "),
     LID_STARTDATUM_LEEG("Er werd geen startdatum opgegeven. "),
+    ONGELDIG_RIJKSNR("Het rijksregisternummer is ongeldig. "),
 
 
     //ongeldige operaties lid

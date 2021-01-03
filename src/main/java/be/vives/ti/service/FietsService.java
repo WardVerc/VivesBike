@@ -12,11 +12,10 @@ import java.util.List;
 public class FietsService {
 
     private FietsDAO fietsDAO;
-    private RitService ritService;
 
-    public FietsService(FietsDAO fietsDAO, RitService ritService) {
+
+    public FietsService(FietsDAO fietsDAO) {
         this.fietsDAO = fietsDAO;
-        this.ritService = ritService;
     }
 
 
@@ -65,9 +64,11 @@ public class FietsService {
         }
 
         //check dat fiets niet in een actieve rit zit
-        if (ritService.zoekActieveRitVanFiets(regnr) != null) {
-            throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
-        }
+        //zou ik zoals bij LidService, verplaatsen naar de controller
+        //zodat FietsService onafhankelijk is van RitService
+        //if (ritService.zoekActieveRitVanFiets(regnr) != null) {
+        //    throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
+        //}
 
         //fietsstatus wijzigen naar HERSTEL
         fietsDAO.wijzigenToestandFiets(regnr, Status.herstel, opmerking);
@@ -90,9 +91,11 @@ public class FietsService {
         }
 
         //check dat fiets niet in een actieve rit zit
-        if (ritService.zoekActieveRitVanFiets(regnr) != null) {
-            throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
-        }
+        //zou ik zoals bij LidService, verplaatsen naar de controller
+        //zodat FietsService onafhankelijk is van RitService
+        //if (ritService.zoekActieveRitVanFiets(regnr) != null) {
+        //    throw new ApplicationException(ApplicationExceptionType.FIETS_IN_GEBRUIK.getMessage());
+        //}
 
         //check dat fiets niet status UIT OMLOOP heeft
         if (fiets.getStatus() == Status.uit_omloop) {

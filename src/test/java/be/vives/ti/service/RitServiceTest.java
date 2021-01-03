@@ -31,7 +31,7 @@ public class RitServiceTest {
         this.lidService = mock(LidService.class);
         this.fietsService = mock(FietsService.class);
 
-        this.ritService = new RitService(ritDAO, lidService, fietsService);
+        this.ritService = new RitService(ritDAO);
     }
 
     /**

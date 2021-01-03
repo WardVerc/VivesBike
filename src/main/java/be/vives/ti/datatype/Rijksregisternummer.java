@@ -2,6 +2,7 @@ package be.vives.ti.datatype;
 
 
 import be.vives.ti.exception.ApplicationException;
+import be.vives.ti.exception.ApplicationExceptionType;
 
 public class Rijksregisternummer {
     private String rijksregisternummer;
@@ -16,7 +17,7 @@ public class Rijksregisternummer {
                 throw new ApplicationException();
             }
         } catch (Exception ex) {
-            throw new ApplicationException("geen geldig rijksregisternummer");
+            throw new ApplicationException(ApplicationExceptionType.ONGELDIG_RIJKSNR.getMessage());
         }
     }
 

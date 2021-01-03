@@ -1,5 +1,7 @@
 package be.vives.ti.service;
 
+import be.vives.ti.dao.FietsDAO;
+import be.vives.ti.dao.LidDAO;
 import be.vives.ti.dao.RitDAO;
 import be.vives.ti.databag.Rit;
 import be.vives.ti.datatype.Status;
@@ -17,10 +19,15 @@ public class RitService {
     private LidService lidService;
     private FietsService fietsService;
 
-    public RitService(RitDAO ritDAO, LidService lidService, FietsService fietsService) {
+    public RitService(RitDAO ritDAO) {
         this.ritDAO = ritDAO;
-        this.lidService = lidService;
-        this.fietsService = fietsService;
+        if (lidService == null) {
+            lidService = new LidService(new LidDAO());
+        }
+
+        if (fietsService == null) {
+            fietsService = new FietsService(new FietsDAO());
+        }
     }
 
     /**
@@ -187,9 +194,10 @@ public class RitService {
         }
 
         //check dat lid bestaat
-        if (lidService.zoekLid(rr) == null) {
-            throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
-        }
+        //moet ik op een hoger niveau checken, nu is er afhankelijkheid tussen rit- en lidservice
+        //if (lidService.zoekLid(rr) == null) {
+        //    throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+        //}
 
         return ritDAO.zoekEersteRitVanLid(rr);
     }
@@ -211,9 +219,10 @@ public class RitService {
         }
 
         //check dat lid bestaat
-        if (lidService.zoekLid(rr) == null) {
-            throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
-        }
+        //moet ik op een hoger niveau checken, nu is er afhankelijkheid tussen rit- en lidservice
+        //if (lidService.zoekLid(rr) == null) {
+        //    throw new ApplicationException(ApplicationExceptionType.LID_BESTAAT_NIET.getMessage());
+        //}
 
         return ritDAO.zoekActieveRitVanLid(rr);
     }
@@ -236,9 +245,10 @@ public class RitService {
         }
 
         //check dat fiets bestaat
-        if (fietsService.zoekFiets(regnr) == null) {
-            throw new ApplicationException(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
-        }
+        //moet ik op een hoger niveau checken, nu is er afhankelijkheid tussen rit- en fietsservice
+        //if (fietsService.zoekFiets(regnr) == null) {
+        //    throw new ApplicationException(ApplicationExceptionType.FIETS_BESTAAT_NIET.getMessage());
+        //}
 
         return ritDAO.zoekActieveRitVanFiets(regnr);
     }

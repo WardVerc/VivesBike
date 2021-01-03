@@ -1,8 +1,9 @@
 package be.vives.ti.service;
 
 import be.vives.ti.dao.LidDAO;
+
 import be.vives.ti.databag.Lid;
-import be.vives.ti.databag.Rit;
+
 import be.vives.ti.datatype.Rijksregisternummer;
 import be.vives.ti.exception.ApplicationException;
 import be.vives.ti.exception.ApplicationExceptionType;
@@ -11,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * Bevat alle functionaliteit van een lid met de nodige checks.
@@ -20,11 +21,11 @@ import java.util.List;
 public class LidService {
 
     private LidDAO lidDAO;
-    private RitService ritService;
 
-    public LidService(LidDAO lidDAO, RitService ritService) {
+
+    public LidService(LidDAO lidDAO) {
         this.lidDAO = lidDAO;
-        this.ritService = ritService;
+
     }
 
     /**
@@ -120,15 +121,11 @@ public class LidService {
         }
 
         //check dat de te wijzigen startdatum niet jonger is dan de eerste rit van het lid
-        Integer eersteRitID = ritService.zoekEersteRitVanLid(rr);
-        Rit eersteRit = ritService.zoekRit(eersteRitID);
-        //omzetten datatypes + datums vergelijken
-        if (startDatum.isAfter(LocalDate.parse(eersteRit.getStarttijd().toString()))) {
-            throw new ApplicationException(ApplicationExceptionType.LID_STARTDATUM_TE_RECENT.getMessage());
-        }
+        //is verplaatst naar de controller zodat lidservice onafhankelijk is van de ritservice
 
+        lid.setStart_lidmaatschap(startDatum);
         //lid wijzigen
-        lidDAO.wijzigenLid(zoekLid(rr));
+        lidDAO.wijzigenLid(lid);
 
     }
 
@@ -139,6 +136,11 @@ public class LidService {
      *                     installatie van de DAO of een fout in de query.
      */
     public void uitschrijvenLid(String rr) throws ApplicationException, DBException {
+        //parameters moeten ingevuld zijn
+        if (rr == null) {
+            throw new ApplicationException(ApplicationExceptionType.LID_RR_LEEG.getMessage());
+        }
+
         //check of lid in db zit
         Lid lid = zoekLid(rr);
         if (lid == null) {
@@ -151,9 +153,7 @@ public class LidService {
         }
 
         //check dat lid niet nog actieve ritten heeft
-        if (ritService.zoekActieveRitVanLid(rr) != null) {
-            throw new ApplicationException(ApplicationExceptionType.LID_HEEFT_ACTIEVE_RITTEN.getMessage());
-        }
+        //verplaatst naar de controller zodat LidService onafhankelijk is van RitService
 
         //rijksregisternr - string omzetten in Rijksregisternummer-object
         Rijksregisternummer rijks = new Rijksregisternummer(rr);

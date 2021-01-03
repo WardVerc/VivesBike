@@ -28,7 +28,7 @@ public class VIVESbike extends Application {
 
     private LidService createLidService() {
         if (lidService == null) {
-            this.lidService = new LidService(createLidDAO(), this.ritService);
+            this.lidService = new LidService(createLidDAO());
         }
         return lidService;
     }
@@ -42,7 +42,7 @@ public class VIVESbike extends Application {
 
     private RitService createRitService() {
         if (ritService == null) {
-            this.ritService = new RitService(createRitDAO(), createLidService(), createFietsService());
+            this.ritService = new RitService(createRitDAO());
         }
         return ritService;
     }
@@ -56,7 +56,7 @@ public class VIVESbike extends Application {
 
     private FietsService createFietsService() {
         if (fietsService == null) {
-            this.fietsService = new FietsService(createFietsDAO(), this.ritService);
+            this.fietsService = new FietsService(createFietsDAO());
         }
         return fietsService;
     }
@@ -85,7 +85,7 @@ public class VIVESbike extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
 
             // controller instellen
-            LedenBeheerController controller = new LedenBeheerController(createRitService(), createLidService());
+            LedenBeheerController controller = new LedenBeheerController(createRitService(), createLidService(), createFietsService());
             loader.setController(controller);
 
             Parent root = loader.load();
